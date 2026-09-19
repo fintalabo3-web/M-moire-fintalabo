@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0B7A4B">
+    <meta name="description" content="FasoService — Trouvez un professionnel de confiance près de chez vous au Burkina Faso.">
+    <title>FasoService</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div id="app">
+
+    <header class="header">
+        <button class="logo" onclick="showPage('home')" aria-label="Accueil FasoService">
+            <div class="logo-icon">FS</div>
+            <span>FasoService</span>
+        </button>
+
+        <div class="mode-switch" role="group" aria-label="Changer de mode">
+            <button id="modeClient" class="mode-btn active" onclick="switchMode('client')">Mode client</button>
+            <button id="modeProvider" class="mode-btn" onclick="switchMode('provider')">Mode prestataire</button>
+        </div>
+
+        <button class="header-btn" onclick="showPage('account')" aria-label="Mon compte">
+            <i data-lucide="user"></i>
+        </button>
+    </header>
+
+    <main id="mainContent">
+
+        <!-- ACCUEIL -->
+        <section id="home" class="page active">
+            <div class="hero">
+                <h1>Trouvez un professionnel<br>de confiance</h1>
+                <p>Plombiers, électriciens, couturiers et plein d' autres près de chez vous.</p>
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="searchInput" placehoalder="Métier, nom, ville…"
+                           oninput="filterCategories()"
+                           onkeydown="if(event.key==='Enter'){searchProvidersFromHome();}">
+                </div>
+
+                <button class="sos-btn" onclick="openSOS()">
+                    <i data-lucide="siren"></i>
+                    Besoin urgent
+                </button>
+            </div>
+
+            <div id="announcementBanner" style="display:none;margin-bottom:14px;"></div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>Catégories</h2>
+                </div>
+                <div class="categories" id="categoriesGrid"></div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD PRESTATAIRE -->
+        <section id="dashboard" class="page">
+            <div class="page-header"><h1>Tableau de bord</h1></div>
+            <div id="dashboardContent"></div>
+        </section>
+
+        <!-- DEMANDES CLIENT -->
+        <section id="myRequests" class="page">
+            <div class="page-header"><h1>Mes demandes</h1></div>
+            <div id="myRequestsContent"></div>
+        </section>
+
+        <!-- DEMANDES PRESTATAIRE -->
+        <section id="receivedRequests" class="page">
+            <div class="page-header"><h1>Demandes reçues</h1></div>
+            <div id="receivedRequestsContent"></div>
+        </section>
+
+        <!-- MESSAGES -->
+        <section id="messages" class="page">
+            <div class="page-header"><h1>Messages</h1></div>
+            <div id="messagesContent"></div>
+        </section>
+
+        <!-- CONVERSATION -->
+        <section id="conversation" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('messages')" aria-label="Retour">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <h1 id="conversationTitle">Conversation</h1>
+            </div>
+            <div id="conversationMessages" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;"></div>
+            <div class="card">
+                <textarea id="messageInput" rows="2" placeholder="Écrire un message..."></textarea>
+                <button class="btn-primary full" style="margin-top:10px;" onclick="sendMessage()">Envoyer</button>
+            </div>
+        </section>
+
+        <!-- COMPTE -->
+        <section id="account" class="page">
+            <div class="page-header"><h1>Mon compte</h1></div>
+            <div id="accountContent"></div>
+        </section>
+
+        <!-- LISTE PRESTATAIRES -->
+        <section id="providers" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('home')" aria-label="Retour">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <h1 id="categoryTitle">Prestataires</h1>
+            </div>
+
+            <div class="filters">
+                <input list="cityList" id="cityFilter" type="text" placeholder="Toutes les villes"
+                       onchange="onCityFilterChange()" oninput="onCityFilterChange()">
+                <datalist id="cityList">
+                    <option value="Ouagadougou">
+                    <option value="Bobo-Dioulasso">
+                    <option value="Koudougou">
+                    <option value="Banfora">
+                    <option value="Ouahigouya">
+                    <option value="Dédougou">
+                    <option value="Dori">
+                    <option value="Tenkodogo">
+                    <option value="Fada N'Gourma">
+                    <option value="Kaya">
+                    <option value="Gaoua">
+                    <option value="Orodara">
+                </datalist>
+                <button id="availableFilter" class="filter-btn" onclick="toggleAvailableFilter()">
+                    <i data-lucide="circle-check"></i> Disponibles
+                </button>
+            </div>
+
+            <div id="providerList"></div>
+        </section>
+
+        <!-- PROFIL PUBLIC -->
+        <section id="publicProfile" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('providers')" aria-label="Retour">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <h1>Profil</h1>
+            </div>
+            <div id="publicProfileContent"></div>
+        </section>
+
+        <!-- LOGIN -->
+        <section id="login" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('account')" aria-label="Retour">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <h1>Connexion</h1>
+            </div>
+            <div class="card">
+                <label for="loginPhone">Numéro de téléphone</label>
+                <input id="loginPhone" type="tel" placeholder="70 00 00 00" autocomplete="tel">
+
+                <label for="loginPassword">Mot de passe</label>
+                <div class="password-field">
+                    <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                        <i data-lucide="eye"></i>
+                    </button>
+                </div>
+
+                <button class="btn-primary full" onclick="login()">Se connecter</button>
+                <button class="link-btn" onclick="showPage('registerChoice')">Créer un compte</button>
+            </div>
+        </section>
+
+        <!-- CHOIX COMPTE -->
+        <section id="registerChoice" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('account')" aria-label="Retour">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <h1>Créer un compte</h1>
+            </div>
+            <p class="muted" style="margin-bottom:16px;">Choisissez le type de compte.</p>
+
+            <button class="choice-card" onclick="startRegister('client')">
+                <div class="choice-icon"><i data-lucide="user"></i></div>
+                <div class="choice-text">
+                    <strong>Je suis client</strong>
+                    <span>Je cherche un prestataire</span>
+                </div>
+                <i data-lucide="chevron-right"></i>
+            </button>
+
+            <button class="choice-card" onclick="startRegister('provider')">
+                <div class="choice-icon"><i data-lucide="briefcase"></i></div>
+                <div class="choice-text">
+                    <strong>Je suis prestataire</strong>
+                    <span>Je propose mes services</span>
+                </div>
+                <i data-lucide="chevron-right"></i>
+            </button>
+        </section>
+
+        <!-- INSCRIPTION -->
+        <section id="register" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('registerChoice')" aria-label="Retour">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <h1 id="registerTitle">Créer un compte</h1>
+            </div>
+            <div class="card">
+                <label for="registerName">Nom complet</label>
+                <input id="registerName" type="text" placeholder="Exemple : Awa Ouédraogo">
+
+                <label for="registerPhone">Téléphone</label>
+                <input id="registerPhone" type="tel" placeholder="70 00 00 00">
+
+                <label for="registerCity">Ville</label>
+                <input id="registerCity" type="text" list="cityList" placeholder="Ouagadougou">
+
+                <label for="registerPassword">Mot de passe</label>
+                <div class="password-field">
+                    <input id="registerPassword" type="password" placeholder="••••••••">
+                    <button type="button" class="password-toggle" onclick="togglePassword('registerPassword', this)">
+                        <i data-lucide="eye"></i>
+                    </button>
+                </div>
+
+                <label for="registerReferral">Code de parrainage (facultatif)</label>
+                <input id="registerReferral" type="text" placeholder="Exemple : AWA4821">
+
+                <input type="hidden" id="registerRole" value="client">
+                <button class="btn-primary full" onclick="register()">Créer mon compte</button>
+            </div>
+        </section>
+
+        <!-- DEMANDE -->
+        <section id="request" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('publicProfile')" aria-label="Retour">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <h1>Demander un service</h1>
+            </div>
+            <div class="card">
+                <div id="requestProviderInfo" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line);"></div>
+                <label for="requestDescription">Description du besoin</label>
+                <textarea id="requestDescription" rows="4" placeholder="Décrivez précisément ce dont vous avez besoin..."></textarea>
+                <label for="requestLocation">Quartier / Adresse</label>
+                <input id="requestLocation" type="text" placeholder="Exemple : Tampouy">
+                <label for="requestDate">Date ou moment souhaité</label>
+                <input id="requestDate" type="text" placeholder="Exemple : Demain matin">
+                <p class="muted" style="font-size:0.82rem;margin:14px 0;">
+                    Le paiement se fait directement avec le prestataire (Mobile Money).
+                </p>
+                <button class="btn-primary full" onclick="sendRequest()">
+                    <i data-lucide="send"></i> Envoyer la demande
+                </button>
+            </div>
+        </section>
+
+        <!-- DEMANDE ENVOYÉE -->
+        <section id="requestSent" class="page">
+            <div style="text-align:center;padding:36px 16px;">
+                <div style="width:64px;height:64px;background:var(--green-light);color:var(--green);border-radius:50%;display:grid;place-items:center;margin:0 auto 16px;">
+                    <i data-lucide="check" style="width:32px;height:32px;"></i>
+                </div>
+                <h1 style="margin-bottom:8px;">Demande envoyée</h1>
+                <p class="muted" style="margin-bottom:20px;">Le prestataire vous contactera bientôt.</p>
+                <div id="requestSummary" class="card" style="text-align:left;margin-bottom:20px;"></div>
+                <button class="btn-primary full" onclick="showPage('home')">Retour à l'accueil</button>
+            </div>
+        </section>
+
+        <!-- AVIS -->
+        <section id="leaveReview" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('myRequests')" aria-label="Retour">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <h1>Laisser un avis</h1>
+            </div>
+            <div class="card review-card">
+                <p class="muted" id="reviewProviderInfo"></p>
+                <div class="stars" id="reviewStars"></div>
+                <label for="reviewComment">Commentaire (facultatif)</label>
+                <textarea id="reviewComment" rows="4" placeholder="Votre expérience..."></textarea>
+                <button class="btn-primary full" style="margin-top:14px;" onclick="submitReview()">Envoyer mon avis</button>
+            </div>
+        </section>
+
+        <!-- EDIT PRESTATAIRE -->
+        <section id="editProvider" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('account')" aria-label="Retour">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <h1 id="editProviderTitle">Mon profil prestataire</h1>
+            </div>
+
+            <div class="card">
+                <label for="provName">Nom complet</label>
+                <input id="provName" type="text" placeholder="Exemple : Ibrahim Ouédraogo">
+
+                <label for="provCategory">Métier</label>
+                <select id="provCategory" onchange="toggleCustomCategory()">
+                    <option value="">Choisir un métier</option>
+                </select>
+
+                <div id="customCategoryBox" style="display:none;">
+                    <label for="provCustomCategory">Précisez votre métier</label>
+                    <input id="provCustomCategory" type="text" placeholder="Exemple : Tailleur de pierre">
+                </div>
+
+                <label for="provCity">Ville</label>
+                <input id="provCity" type="text" list="cityList" placeholder="Ouagadougou">
+
+                <label for="provDistrict">Quartier</label>
+                <input id="provDistrict" type="text" placeholder="Exemple : Tampouy">
+
+                <label for="provDescription">Description</label>
+                <textarea id="provDescription" rows="3" placeholder="Présentez vos services..."></textarea>
+
+                <label>Photo de profil</label>
+                <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+                    <img id="provPhotoPreview" src="" alt="" style="display:none;border:1px solid var(--line);">
+                    <div style="flex:1;">
+                        <input id="provPhotoInput" type="file" accept="image/*" capture="environment" style="font-size:0.82rem;">
+                        <p class="muted" style="font-size:0.75rem;margin-top:4px;">Caméra ou galerie</p>
+                    </div>
+                </div>
+
+                <label for="provPrice">Tarif de base (FCFA)</label>
+                <input id="provPrice" type="number" min="0" placeholder="Exemple : 5000">
+
+                <label for="provPriceUnit">Type de tarif</label>
+                <select id="provPriceUnit">
+                    <option value="forfait">Forfait</option>
+                    <option value="heure">À l'heure</option>
+                    <option value="jour">À la journée</option>
+                    <option value="prestation">Par prestation</option>
+                    <option value="devis">Sur devis</option>
+                </select>
+
+                <label class="switch-row" style="margin-top:14px;">
+                    <input type="checkbox" id="provAvailable" checked>
+                    <span>Je suis disponible</span>
+                </label>
+
+                <button class="btn-primary full" style="margin-top:18px;" onclick="saveProviderProfile()">
+                    Enregistrer mon profil
+                </button>
+            </div>
+
+            <div id="galleryManagerBox" style="margin-top:12px;"></div>
+            <div id="servicesManagerBox" style="margin-top:12px;"></div>
+        </section>
+
+        <!-- SOS -->
+        <section id="sos" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('home')" aria-label="Retour">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <h1>Besoin urgent</h1>
+            </div>
+            <div class="card">
+                <p class="muted" style="margin-bottom:14px;">Décrivez l'urgence. Un prestataire disponible sera contacté.</p>
+                <label for="sosCategory">Type d'urgence</label>
+                <select id="sosCategory">
+                    <option value="">Choisir</option>
+                    <option value="Plombier">Plombier</option>
+                    <option value="Électricien">Électricien</option>
+                    <option value="Serrurier">Serrurier</option>
+                    <option value="Mécanicien">Mécanicien</option>
+                    <option value="Vulcanisateur">Vulcanisateur</option>
+                    <option value="Autre">Autre</option>
+                </select>
+                <label for="sosDescription">Description</label>
+                <textarea id="sosDescription" rows="3" placeholder="Ex : Fuite d'eau importante..."></textarea>
+                <label for="sosLocation">Quartier / Adresse</label>
+                <input id="sosLocation" type="text" placeholder="Zone 1, derrière la station">
+                <button class="btn-primary full" style="margin-top:18px;background:var(--red);" onclick="sendSOS()">
+                    <i data-lucide="siren"></i> Envoyer l'urgence
+                </button>
+            </div>
+        </section>
+
+        <!-- ADMIN -->
+        <section id="adminDashboard" class="page">
+            <div class="page-header"><h1>Administration</h1></div>
+            <div id="adminStats" class="stats-grid"></div>
+            <div class="card" style="margin-top:12px;">
+                <h3 style="margin-bottom:10px;">Actions</h3>
+                <div class="dashboard-actions">
+                    <button class="btn-secondary full" onclick="loadAdminUsers()">Utilisateurs</button>
+                    <button class="btn-secondary full" onclick="loadAdminProviders()">Prestataires</button>
+                    <button class="btn-secondary full" onclick="loadAdminRequests()">Demandes</button>
+                    <button class="btn-secondary full" onclick="loadAdminModerators()">Modérateurs</button>
+                    <button class="btn-secondary full" onclick="loadAdminAnnouncements()">Annonces</button>
+                    <button class="btn-secondary full" onclick="loadSubscriptionRequests()">Abonnements</button>
+                </div>
+            </div>
+            <div id="adminList" style="margin-top:12px;"></div>
+        </section>
+
+        <!-- MODÉRATEUR -->
+        <section id="modDashboard" class="page">
+            <div class="page-header"><h1>Espace Modération</h1></div>
+            <div class="card" style="margin-bottom:12px;">
+                <p class="muted">Actions selon vos permissions.</p>
+            </div>
+            <div class="dashboard-actions">
+                <button class="btn-secondary full" onclick="loadAdminUsers()">Utilisateurs</button>
+                <button class="btn-secondary full" onclick="loadAdminProviders()">Prestataires</button>
+                <button class="btn-secondary full" onclick="loadAdminRequests()">Demandes</button>
+            </div>
+            <div id="adminList" style="margin-top:12px;"></div>
+        </section>
+
+    </main>
+
+    <nav class="bottom-nav" id="bottomNav"></nav>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="app.js"></script>
+</body>
+</html>
