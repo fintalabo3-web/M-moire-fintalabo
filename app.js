@@ -325,14 +325,13 @@ async function register() {
     if (!data.user) return toast("Création du compte échouée.");
 
     const referralCode = await generateUniqueReferralCode(name);
-    const { error: insertError } = await db.from("users").insert({
-        id: data.user.id,
-        name,
-        phone,
-        city,
-        role,
-        referral_code: referralCode,
-        referred_by: referral || null
+    const { error: insertError } = await db.rpc("create_user_profile", {
+        new_name: name,
+        new_phone: phone,
+        new_city: city,
+        new_role: role,
+        new_referral_code: referralCode,
+        new_referred_by: referral || null
     });
 
     if (insertError) {
