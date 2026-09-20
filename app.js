@@ -922,7 +922,7 @@ async function addGalleryPhoto() {
         toast("Upload...");
         const url = await uploadProviderFile(file, "gallery");
         if (!url) return toast("Erreur upload");
-        const { error } = await db.from("gallery").insert({ provider_id: editingProviderId, photo_url: url });
+        const { error } = await db.rpc("add_gallery_photo", { new_provider_id: editingProviderId, new_photo_url: url });
         if (error) return toast("Erreur enregistrement");
         toast("Photo ajoutée");
         loadGalleryManager(editingProviderId);
@@ -934,7 +934,7 @@ async function addGalleryPhoto() {
 
 async function deleteGalleryPhoto(galleryId) {
     if (!confirm("Supprimer cette photo ?")) return;
-    const { error } = await db.from("gallery").delete().eq("id", galleryId);
+    const { error } = await db.rpc("delete_gallery_photo", { target_gallery_id: galleryId });
     if (error) return toast("Erreur suppression");
     toast("Supprimée");
     loadGalleryManager(editingProviderId);
