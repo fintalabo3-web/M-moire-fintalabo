@@ -1657,7 +1657,11 @@ async function toggleSuspendUser(userId, suspend) {
 
 async function toggleVerifyProvider(providerId, verify) {
     if (!hasPermission("validate_provider")) return toast("Permission refusée");
-    await db.from("providers").update({ verified: !!verify }).eq("id", providerId);
+    const { error } = await db.rpc("admin_set_provider_verified", {
+        target_provider_id: providerId,
+        new_verified: !!verify
+    });
+    if (error) return toast("Erreur : " + error.message);
     toast(verify ? "Prestataire vérifié" : "Badge retiré");
     loadAdminProviders();
 }
