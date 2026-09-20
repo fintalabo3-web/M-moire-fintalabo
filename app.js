@@ -1299,10 +1299,11 @@ async function updateMessageBadge() {
 
 async function markConversationRead() {
     if (!user || !currentConversation) return;
-    await db.from("messages").update({ read: true })
-        .eq("sender_id", currentConversation.otherId)
-        .eq("receiver_id", user.id)
-        .eq("read", false);
+    if (!currentConversation.requestId) return;
+    const { error } = await db.rpc("mark_request_messages_read", {
+        target_request_id: currentConversation.requestId
+    });
+    if (error) return console.error("Erreur marquage messages :", error);
     updateMessageBadge();
 }
 
