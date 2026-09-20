@@ -842,7 +842,19 @@ async function saveProviderProfile() {
     let savedId = existing?.id || null;
 
     if (existing) {
-        ({ error } = await db.from("providers").update(providerData).eq("id", existing.id));
+        const { error: updateError } = await db.rpc("update_provider_profile", {
+            target_provider_id: existing.id,
+            new_name: name,
+            new_category: category,
+            new_city: city,
+            new_district: district || null,
+            new_description: description || null,
+            new_available: available,
+            new_price: priceRaw ? Number(priceRaw) : null,
+            new_price_unit: priceUnit,
+            new_photo_url: photoUrl || existing?.photo_url || null
+        });
+        error = updateError;
     } else {
         const slug = await generateUniqueSlug(name);
         const { data: inserted, error: insertError } = await db
