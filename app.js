@@ -981,7 +981,12 @@ async function addService() {
     const price = Number(document.getElementById("svcPrice")?.value);
     const unit = document.getElementById("svcUnit")?.value || "forfait";
     if (!name || !price) return toast("Nom et prix requis");
-    const { error } = await db.from("services").insert({ provider_id: editingProviderId, name, price, unit });
+    const { error } = await db.rpc("add_provider_service", {
+        new_provider_id: editingProviderId,
+        new_name: name,
+        new_price: price,
+        new_unit: unit
+    });
     if (error) return toast("Erreur : " + error.message);
     toast("Service ajouté");
     loadServicesManager(editingProviderId);
@@ -989,7 +994,10 @@ async function addService() {
 
 async function deleteService(id) {
     if (!confirm("Supprimer ce service ?")) return;
-    await db.from("services").delete().eq("id", id);
+    const { error } = await db.rpc("delete_provider_service", {
+        target_service_id: id
+    });
+    if (error) return toast("Erreur : " + error.message);
     loadServicesManager(editingProviderId);
 }
 
