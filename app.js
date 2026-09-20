@@ -702,6 +702,12 @@ async function sendRequest() {
 
 async function uploadProviderFile(file, folder) {
     if (!user || !file) return null;
+    if (!file.type || !file.type.startsWith("image/")) {
+        throw new Error("Format de fichier non pris en charge");
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        throw new Error("Image trop volumineuse (5 Mo maximum)");
+    }
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
     const path = `${user.id}/${folder}/${Date.now()}.${ext}`;
     const { error } = await db.storage.from("provider-photos").upload(path, file, { upsert: true });
@@ -720,7 +726,12 @@ function initProviderPhotoPreview() {
     input.onchange = () => {
         const file = input.files?.[0];
         if (!file) return;
-        preview.src = URL.createObjectURL(file);
+        if (preview.dataset.objectUrl) {
+            URL.revokeObjectURL(preview.dataset.objectUrl);
+        }
+        const objectUrl = URL.createObjectURL(file);
+        preview.dataset.objectUrl = objectUrl;
+        preview.src = objectUrl;
         preview.style.display = "block";
     };
 }
