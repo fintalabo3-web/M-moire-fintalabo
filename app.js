@@ -677,17 +677,11 @@ async function sendRequest() {
     const dateWanted = document.getElementById("requestDate").value.trim();
     if (!description) return toast("Décrivez votre besoin");
 
-    const { error } = await db.from("requests").insert({
-        client_id: user.id,
-        client_name: user.name,
-        client_phone: user.phone,
-        provider_id: currentProvider.id,
-        provider_name: currentProvider.name,
-        category: currentProvider.category,
-        description,
-        location: location || null,
-        date_wanted: dateWanted || null,
-        status: "envoyée"
+    const { error } = await db.rpc("create_service_request", {
+        target_provider_id: currentProvider.id,
+        new_description: description,
+        new_location: location || null,
+        new_date_wanted: dateWanted || null
     });
 
     if (error) {
