@@ -856,16 +856,21 @@ async function saveProviderProfile() {
         });
         error = updateError;
     } else {
-        const slug = await generateUniqueSlug(name);
-        const { data: inserted, error: insertError } = await db
-            .from("providers")
-            .insert({ ...providerData, slug })
-            .select("id")
-            .single();
-        error = insertError;
-        savedId = inserted?.id || null;
-        if (!error && user.role !== "provider") {
-            await db.from("users").update({ role: "provider" }).eq("id", user.id);
+        const { data: createdId, error: createError } = await db.rpc("create_provider_profile", {
+            new_name: name,
+            new_category: category,
+            new_city: city,
+            new_district: district || null,
+            new_description: description || null,
+            new_available: available,
+            new_price: priceRaw ? Number(priceRaw) : null,
+            new_price_unit: priceUnit,
+            new_photo_url: photoUrl || null
+        });
+        error = createError;
+        savedId = createdId || null;
+
+        if (!error) {
             user.role = "provider";
         }
     }
