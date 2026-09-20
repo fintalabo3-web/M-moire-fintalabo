@@ -1143,12 +1143,10 @@ async function submitReview() {
     const { data: existing } = await db.from("reviews").select("id").eq("request_id", reviewTargetRequestId).maybeSingle();
     if (existing) return toast("Avis déjà envoyé");
     const comment = document.getElementById("reviewComment")?.value.trim() || "";
-    const { error } = await db.from("reviews").insert({
-        request_id: reviewTargetRequestId,
-        provider_id: req.provider_id,
-        client_id: user.id,
-        rating: reviewSelectedRating,
-        comment: comment || null
+    const { error } = await db.rpc("create_provider_review", {
+        target_request_id: reviewTargetRequestId,
+        new_rating: reviewSelectedRating,
+        new_comment: comment || null
     });
     if (error) return toast("Erreur : " + error.message);
     toast("Merci pour votre avis !");
