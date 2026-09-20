@@ -497,8 +497,7 @@ async function loadProviders() {
     }
     if (onlyAvailable) query = query.eq("available", true);
 
-    const city = document.getElementById("cityFilter")?.value.trim() || "";
-    if (city) query = query.ilike("city", `%${city}%`);
+    const city = document.getElementById("cityFilter")?.value.trim() || "";    if (city) query = query.ilike("city", `%${city}%`);
 
     let { data, error } = await query;
 
@@ -997,8 +996,7 @@ async function displayMyRequests() {
     box.innerHTML = `<div class="empty-state"><p>Chargement...</p></div>`;
     const { data, error } = await db.from("requests").select("*").eq("client_id", user.id).order("created_at", { ascending: false });
     if (error) {
-        box.innerHTML = `<div class="empty-state"><p>Erreur</p></div>`;
-        return;
+        box.innerHTML = `<div class="empty-state"><p>Erreur</p></div>`;        return;
     }
     myRequestsCache = {};
     (data || []).forEach(r => { myRequestsCache[r.id] = r; });
@@ -1497,8 +1495,7 @@ async function displayAdminDashboard() {
     if (!user?.is_admin) {
         listBox.innerHTML = `<div class="empty-state"><p>Accès réservé</p></div>`;
         return;
-    }
-    listBox.innerHTML = "";
+    }    listBox.innerHTML = "";
     const [usersRes, providersRes, requestsRes] = await Promise.all([
         db.from("users").select("id,role,suspended,is_moderator"),
         db.from("providers").select("id"),
@@ -1589,14 +1586,16 @@ async function promoteModerator() {
     const { data: all } = await db.from("users").select("id,phone");
     const match = (all || []).find(u => normalizePhone(u.phone).slice(-8) === digits);
     if (!match) return toast("Utilisateur introuvable");
-    await db.from("users").update({ is_moderator: true, permissions: DEFAULT_MOD_PERMISSIONS }).eq("id", match.id);
+    const { error } = await db.rpc("admin_update_user", { target_user_id: match.id, new_is_moderator: true, new_permissions: DEFAULT_MOD_PERMISSIONS, new_suspended: null });
+    if (error) return toast("Erreur : " + error.message);
     toast("Modérateur ajouté");
     loadAdminModerators();
 }
 
 async function demoteModerator(userId) {
     if (!user?.is_admin) return;
-    await db.from("users").update({ is_moderator: false, permissions: null }).eq("id", userId);
+    const { error } = await db.rpc("admin_update_user", { target_user_id: userId, new_is_moderator: false, new_permissions: null, new_suspended: null });
+    if (error) return toast("Erreur : " + error.message);
     toast("Retiré");
     loadAdminModerators();
 }
@@ -1625,14 +1624,16 @@ async function saveModeratorPermissions(userId) {
     Object.keys(DEFAULT_MOD_PERMISSIONS).forEach(key => {
         permissions[key] = !!document.getElementById("perm_" + key)?.checked;
     });
-    await db.from("users").update({ permissions }).eq("id", userId);
+    const { error } = await db.rpc("admin_update_user", { target_user_id: userId, new_is_moderator: true, new_permissions: permissions, new_suspended: null });
+    if (error) return toast("Erreur : " + error.message);
     toast("Permissions mises à jour");
     loadAdminModerators();
 }
 
 async function toggleSuspendUser(userId, suspend) {
     if (!hasPermission("suspend_user")) return toast("Permission refusée");
-    await db.from("users").update({ suspended: !!suspend }).eq("id", userId);
+    const { error } = await db.rpc("staff_suspend_user", { target_user_id: userId, new_suspended: !!suspend });
+    if (error) return toast("Erreur : " + error.message);
     toast(suspend ? "Suspendu" : "Réactivé");
     loadAdminUsers();
 }
