@@ -1485,8 +1485,10 @@ async function createAnnouncement() {
     if (!user?.is_admin) return;
     const text = document.getElementById("newAnnouncement")?.value.trim();
     if (!text) return toast("Écrivez une annonce");
-    const { error } = await db.from("announcements").insert({ text });
-    if (error) return toast("Erreur");
+    const { error } = await db.rpc("admin_create_announcement", {
+        new_text: text
+    });
+    if (error) return toast("Erreur : " + error.message);
     toast("Publiée");
     loadAdminAnnouncements();
     loadAnnouncement();
