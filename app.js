@@ -714,6 +714,9 @@ function initProviderPhotoPreview() {
     const input = document.getElementById("provPhotoInput");
     const preview = document.getElementById("provPhotoPreview");
     if (!input || !preview) return;
+    input.addEventListener("click", () => {
+        input.value = "";
+    });
     input.onchange = () => {
         const file = input.files?.[0];
         if (!file) return;
@@ -909,7 +912,8 @@ async function loadGalleryManager(providerId) {
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;">
                 ${photos || `<p class="muted" style="grid-column:1/-1;">Aucune photo</p>`}
             </div>
-            <input id="galleryInput" type="file" accept="image/*" capture="environment" style="font-size:0.82rem;">
+            <input id="galleryInput" type="file" accept="image/*" capture="environment" style="font-size:0.82rem;"
+                onclick="this.value='';">
             <button class="btn-secondary full" style="margin-top:8px;" onclick="addGalleryPhoto()">Ajouter</button>
         </div>`;
 }
