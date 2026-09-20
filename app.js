@@ -1264,12 +1264,9 @@ async function displayDashboard() {
 
 async function requestSubscription(plan) {
     if (!user) return toast("Connectez-vous");
-    const { data: p } = await db.from("providers").select("id").eq("user_id", user.id).maybeSingle();
-    if (!p) return toast("Profil introuvable");
-    const { error } = await db.from("providers").update({
-        subscription_requested_plan: plan || "mensuel",
-        subscription_requested_at: new Date().toISOString()
-    }).eq("id", p.id);
+    const { error } = await db.rpc("request_provider_subscription", {
+        new_plan: plan || "mensuel"
+    });
     if (error) return toast("Erreur : " + error.message);
     toast("Demande envoyée. L'admin vous contactera.");
     displayDashboard();
