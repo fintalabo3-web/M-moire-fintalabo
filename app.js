@@ -1397,11 +1397,11 @@ async function sendMessage() {
     if (!user || !currentConversation) return toast("Erreur");
     const body = document.getElementById("messageInput")?.value.trim();
     if (!body) return toast("Écrivez un message");
-    const { error } = await db.from("messages").insert({
-        sender_id: user.id,
-        receiver_id: currentConversation.otherId,
-        request_id: currentConversation.requestId || null,
-        body
+    if (!currentConversation.requestId) return toast("Conversation non liée à une demande");
+    const { error } = await db.rpc("send_request_message", {
+        target_request_id: currentConversation.requestId,
+        target_receiver_id: currentConversation.otherId,
+        new_body: body
     });
     if (error) return toast("Erreur : " + error.message);
     document.getElementById("messageInput").value = "";
