@@ -1363,8 +1363,14 @@ async function refreshConversation() {
     const box = document.getElementById("conversationMessages");
     if (!box || !currentConversation || !user) return;
     const otherId = currentConversation.otherId;
-    const { data, error } = await db.from("messages").select("*")
-        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherId}),and(sender_id.eq.${otherId},receiver_id.eq.${user.id})`)
+    let messageQuery = db.from("messages").select("*")
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherId}),and(sender_id.eq.${otherId},receiver_id.eq.${user.id})`);
+
+    if (currentConversation.requestId) {
+        messageQuery = messageQuery.eq("request_id", currentConversation.requestId);
+    }
+
+    const { data, error } = await messageQuery
         .order("created_at", { ascending: true }).limit(100);
     if (error) {
         box.innerHTML = `<div class="empty-state"><p>Erreur</p></div>`;
