@@ -1176,17 +1176,11 @@ async function sendSOS() {
     const provider = candidates?.[0];
     if (!provider) return toast("Aucun prestataire disponible pour cette urgence");
 
-    const { error } = await db.from("requests").insert({
-        client_id: user.id,
-        client_name: user.name,
-        client_phone: user.phone,
-        provider_id: provider.id,
-        provider_name: provider.name,
-        category,
-        description: "[URGENCE] " + description,
-        location,
-        status: "envoyée",
-        is_sos: true
+    const { error } = await db.rpc("create_sos_request", {
+        target_provider_id: provider.id,
+        new_category: category,
+        new_description: description,
+        new_location: location
     });
     if (error) {
         console.error(error);
