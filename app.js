@@ -1496,7 +1496,10 @@ async function createAnnouncement() {
 
 async function deleteAnnouncement(id) {
     if (!user?.is_admin || !confirm("Supprimer ?")) return;
-    await db.from("announcements").delete().eq("id", id);
+    const { error } = await db.rpc("admin_delete_announcement", {
+        target_announcement_id: id
+    });
+    if (error) return toast("Erreur : " + error.message);
     toast("Supprimée");
     loadAdminAnnouncements();
     loadAnnouncement();
