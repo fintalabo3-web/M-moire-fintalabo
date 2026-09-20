@@ -1690,15 +1690,10 @@ async function loadSubscriptionRequests() {
 
 async function activateSubscription(providerId) {
     if (!user?.is_admin) return;
-    const renews = new Date();
-    renews.setMonth(renews.getMonth() + 1);
-    await db.from("providers").update({
-        subscription_status: "active",
-        subscription_plan: "mensuel",
-        subscription_renews_at: renews.toISOString(),
-        subscription_requested_plan: null,
-        subscription_requested_at: null
-    }).eq("id", providerId);
+    const { error } = await db.rpc("admin_activate_subscription", {
+        target_provider_id: providerId
+    });
+    if (error) return toast("Erreur : " + error.message);
     toast("Abonnement activé");
     loadSubscriptionRequests();
 }
