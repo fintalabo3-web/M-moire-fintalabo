@@ -1700,10 +1700,10 @@ async function activateSubscription(providerId) {
 
 async function clearSubscriptionRequest(providerId) {
     if (!user?.is_admin) return;
-    await db.from("providers").update({
-        subscription_requested_plan: null,
-        subscription_requested_at: null
-    }).eq("id", providerId);
+    const { error } = await db.rpc("admin_clear_subscription_request", {
+        target_provider_id: providerId
+    });
+    if (error) return toast("Erreur : " + error.message);
     toast("Ignorée");
     loadSubscriptionRequests();
 }
