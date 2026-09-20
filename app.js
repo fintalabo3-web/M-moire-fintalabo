@@ -1079,18 +1079,19 @@ function renderReceivedRequestCard(r) {
 }
 
 async function acceptRequest(requestId) {
-    const { error } = await db.from("requests").update({ status: "acceptée" }).eq("id", requestId);
-    if (error) return toast("Erreur");
+    const { error } = await db.rpc("accept_service_request", {
+        target_request_id: requestId
+    });
+    if (error) return toast("Erreur : " + error.message);
     toast("Demande acceptée");
     displayReceivedRequests();
 }
 
 async function markRequestCompleted(requestId) {
     if (!confirm("Confirmer que le service est terminé ?")) return;
-    const { error } = await db.from("requests").update({
-        status: "terminée",
-        completed_at: new Date().toISOString()
-    }).eq("id", requestId);
+    const { error } = await db.rpc("complete_service_request", {
+        target_request_id: requestId
+    });
     if (error) return toast("Erreur : " + error.message);
     toast("Marquée terminée");
     displayReceivedRequests();
