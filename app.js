@@ -652,7 +652,7 @@ async function openPublicProfile(providerId) {
     box.innerHTML = `
         <div class="card" style="text-align:center;">
             <div class="profile-avatar">
-                ${p.photo_url ? `<img src="${escapeHTML(p.photo_url)}" alt="">` : initial}
+                ${p.photo_url ? `<img src="${safeHttpUrl(p.photo_url)}" alt="">` : initial}
             </div>
             <h2 style="margin-bottom:4px;">${escapeHTML(p.name)}</h2>
             <p class="muted">${escapeHTML(p.category)} · ${escapeHTML(p.city || "")}${p.district ? " · " + escapeHTML(p.district) : ""}</p>
@@ -942,7 +942,7 @@ async function loadGalleryManager(providerId) {
     }
     const photos = (data || []).map(g => `
         <div style="position:relative;">
-            <img src="${escapeHTML(g.photo_url)}" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;">
+            <img src="${safeHttpUrl(g.photo_url)}" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;">
             <button type="button" style="position:absolute;top:4px;right:4px;background:#B91C1C;color:#fff;border:none;border-radius:6px;padding:2px 6px;font-size:0.7rem;cursor:pointer;"
                 onclick="deleteGalleryPhoto('${g.id}')">✕</button>
         </div>`).join("");
