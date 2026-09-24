@@ -702,8 +702,9 @@ async function sendRequest() {
 
 async function uploadProviderFile(file, folder) {
     if (!user || !file) return null;
-    if (!file.type || !file.type.startsWith("image/")) {
-        throw new Error("Format de fichier non pris en charge");
+    const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+    if (!allowedImageTypes.has(file.type)) {
+        throw new Error("Format de fichier non pris en charge (JPG, PNG ou WebP uniquement)");
     }
     if (file.size > 5 * 1024 * 1024) {
         throw new Error("Image trop volumineuse (5 Mo maximum)");
