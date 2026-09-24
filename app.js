@@ -724,7 +724,12 @@ async function uploadProviderFile(file, folder) {
     if (file.size > 5 * 1024 * 1024) {
         throw new Error("Image trop volumineuse (5 Mo maximum)");
     }
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const extensionByType = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp"
+    };
+    const ext = extensionByType[file.type];
     const path = `${user.id}/${folder}/${Date.now()}.${ext}`;
     const { error } = await db.storage.from("provider-photos").upload(path, file, { upsert: true });
     if (error) throw error;
