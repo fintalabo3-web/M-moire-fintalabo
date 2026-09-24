@@ -51,6 +51,15 @@ function encodeInlineArg(value) {
     return encodeURIComponent(String(value ?? "")).replace(/'/g, "%27");
 }
 
+function safeHttpUrl(value) {
+    try {
+        const url = new URL(String(value || ""));
+        return url.protocol === "https:" || url.protocol === "http:" ? escapeHTML(url.href) : "";
+    } catch {
+        return "";
+    }
+}
+
 function escapeHTML(str) {
     return String(str || "")
         .replace(/&/g, "&amp;")
@@ -557,7 +566,7 @@ function renderProviderCard(p) {
         <div class="${cardClass}" onclick="openPublicProfile('${p.id}')">
             <div class="provider-top">
                 <div class="avatar">
-                    ${p.photo_url ? `<img src="${escapeHTML(p.photo_url)}" alt="">` : initial}
+                    ${p.photo_url ? `<img src="${safeHttpUrl(p.photo_url)}" alt="">` : initial}
                 </div>
                 <div class="provider-info">
                     <h3>
@@ -628,7 +637,7 @@ async function openPublicProfile(providerId) {
 
     const galleryHtml = gallery.length
         ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;">
-            ${gallery.map(g => `<img src="${escapeHTML(g.photo_url)}" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;">`).join("")}
+            ${gallery.map(g => `<img src="${safeHttpUrl(g.photo_url)}" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;">`).join("")}
            </div>`
         : `<p class="muted">Aucune photo</p>`;
 
@@ -660,7 +669,7 @@ async function openPublicProfile(providerId) {
         <div class="card"><h3 style="margin-bottom:6px;">Avis</h3>${reviewsHtml}</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
             <button class="btn-primary full" onclick="startRequest('${p.id}')">Demander un service</button>
-            <a class="btn-secondary full" style="text-align:center;text-decoration:none;" href="tel:${escapeHTML(p.phone)}">Appeler</a>
+            <a class="btn-secondary full" style="text-align:center;text-decoration:none;" href="tel:${normalizePhone(p.phone)}">Appeler</a>
             <a class="btn-secondary full" style="text-align:center;text-decoration:none;" href="https://wa.me/226${phoneDigits}" target="_blank" rel="noopener">WhatsApp</a>
         </div>`;
     if (window.lucide) lucide.createIcons();
