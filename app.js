@@ -47,6 +47,10 @@ function phoneToEmail(phone) {
     return normalizePhone(phone) + "@fasoservice.local";
 }
 
+function encodeInlineArg(value) {
+    return encodeURIComponent(String(value ?? "")).replace(/'/g, "%27");
+}
+
 function escapeHTML(str) {
     return String(str || "")
         .replace(/&/g, "&amp;")
@@ -1059,7 +1063,7 @@ async function displayMyRequests() {
                 <p class="muted" style="font-size:0.78rem;">${date}</p>
                 <p style="margin-top:8px;">${escapeHTML(r.description || "")}</p>
                 ${r.provider_id ? `<button class="btn-secondary full" style="margin-top:10px;"
-                    onclick="startChatFromRequest('${r.id}','${r.provider_id}','${escapeHTML(r.provider_name || "Prestataire").replace(/'/g, "\\'")}')">Message</button>` : ""}
+                    onclick="startChatFromRequest('${r.id}','${r.provider_id}',decodeURIComponent('${encodeInlineArg(r.provider_name || "Prestataire")}'))">Message</button>` : ""}
                 ${r.status === "terminée" ? `<button class="btn-secondary full" style="margin-top:8px;" onclick="openLeaveReview('${r.id}')">Laisser un avis</button>` : ""}
             </div>`;
     }).join("");
@@ -1104,7 +1108,7 @@ function renderReceivedRequestCard(r) {
             ${r.location ? `<p class="muted" style="margin-top:4px;">📍 ${escapeHTML(r.location)}</p>` : ""}
             ${r.client_phone ? `<p class="muted">📞 ${escapeHTML(r.client_phone)}</p>` : ""}
             ${r.client_id ? `<button class="btn-secondary full" style="margin-top:10px;"
-                onclick="startChatFromRequest('${r.id}','${r.client_id}','${escapeHTML(r.client_name || "Client").replace(/'/g, "\\'")}')">Message</button>` : ""}
+                onclick="startChatFromRequest('${r.id}','${r.client_id}',decodeURIComponent('${encodeInlineArg(r.client_name || "Client")}'))">Message</button>` : ""}
             ${r.status === "envoyée" || r.status === "acceptée" ? `
                 <button class="btn-secondary full" style="margin-top:8px;" onclick="acceptRequest('${r.id}')">Accepter</button>
                 <button class="btn-primary full" style="margin-top:8px;" onclick="markRequestCompleted('${r.id}')">Marquer terminée</button>
@@ -1369,9 +1373,9 @@ async function loadMessages() {
         const last = map.get(otherId);
         const name = nameById[otherId] || "Utilisateur";
         const preview = last.body.length > 40 ? last.body.slice(0, 40) + "…" : last.body;
-        const safe = escapeHTML(name).replace(/'/g, "\\'");
+        const encodedName = encodeInlineArg(name);
         return `<div class="card" style="cursor:pointer;"
-            onclick="openConversation('${otherId}','${safe}',${last.request_id ? `'${last.request_id}'` : "null"})">
+            onclick="openConversation('${otherId}',decodeURIComponent('${encodedName}'),${last.request_id ? `'${last.request_id}'` : "null"})">
             <h3 style="margin-bottom:4px;">${escapeHTML(name)}</h3>
             <p class="muted" style="font-size:0.85rem;">${escapeHTML(preview)}</p>
         </div>`;
