@@ -279,18 +279,29 @@ async function searchProvidersFromHome() {
     if (!list) return;
     list.innerHTML = `<div class="empty-state"><p>Chargement...</p></div>`;
 
-    const { data, error } = await db
-        .from("providers")
-        .select("*")
-        .or(`name.ilike.%${term}%,category.ilike.%${term}%,city.ilike.%${term}%`)
-        .order("rating", { ascending: false });
+    // Search each field separately so user input never becomes part of
+    // a raw PostgREST .or() filter expression.
+    const pattern = `%${term}%`;
+    const [nameRes, categoryRes, cityRes] = await Promise.all([
+        db.from("providers").select("*").ilike("name", pattern),
+        db.from("providers").select("*").ilike("category", pattern),
+        db.from("providers").select("*").ilike("city", pattern)
+    ]);
 
-    if (error) {
-        console.error(error);
+    const firstError = nameRes.error || categoryRes.error || cityRes.error;
+    if (firstError) {
+        console.error(firstError);
         list.innerHTML = `<div class="empty-state"><p>Erreur de chargement</p></div>`;
         return;
     }
-    if (!data || !data.length) {
+
+    const providersById = new Map();
+    [...(nameRes.data || []), ...(categoryRes.data || []), ...(cityRes.data || [])]
+        .forEach(provider => providersById.set(provider.id, provider));
+    const data = [...providersById.values()]
+        .sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
+
+    if (!data.length) {
         list.innerHTML = `<div class="empty-state"><i data-lucide="user-x"></i><p>Aucun prestataire trouvé</p></div>`;
         if (window.lucide) lucide.createIcons();
         return;
