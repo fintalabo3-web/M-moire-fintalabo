@@ -280,7 +280,7 @@ function filterCategories() {
 
 async function searchProvidersFromHome() {
     const input = document.getElementById("searchInput");
-    const term = input ? input.value.trim() : "";
+    const term = input ? input.value.trim().slice(0, 100) : "";
     if (!term) return;
 
     currentCategory = "";
@@ -296,9 +296,9 @@ async function searchProvidersFromHome() {
     // a raw PostgREST .or() filter expression.
     const pattern = `%${term}%`;
     const [nameRes, categoryRes, cityRes] = await Promise.all([
-        db.from("providers").select("*").ilike("name", pattern),
-        db.from("providers").select("*").ilike("category", pattern),
-        db.from("providers").select("*").ilike("city", pattern)
+        db.from("providers").select("*").ilike("name", pattern).limit(50),
+        db.from("providers").select("*").ilike("category", pattern).limit(50),
+        db.from("providers").select("*").ilike("city", pattern).limit(50)
     ]);
 
     const firstError = nameRes.error || categoryRes.error || cityRes.error;
