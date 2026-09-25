@@ -1443,6 +1443,7 @@ async function sendMessage() {
     if (!user || !currentConversation) return toast("Erreur");
     const body = document.getElementById("messageInput")?.value.trim();
     if (!body) return toast("Écrivez un message");
+    if (body.length > 2000) return toast("Message trop long (2000 caractères maximum)");
     if (!currentConversation.requestId) return toast("Conversation non liée à une demande");
     const { error } = await db.rpc("send_request_message", {
         target_request_id: currentConversation.requestId,
