@@ -415,7 +415,7 @@ async function logout() {
 }
 
 async function loadCurrentUser(userId) {
-    const { data, error } = await db.from("users").select("*").eq("id", userId).single();
+    const { data, error } = await db.from("users").select("id,name,phone,city,role,referral_code,is_admin,is_moderator,permissions,suspended").eq("id", userId).single();
     if (error || !data) {
         user = null;
         return null;
@@ -1057,7 +1057,7 @@ async function displayMyRequests() {
         return;
     }
     box.innerHTML = `<div class="empty-state"><p>Chargement...</p></div>`;
-    const { data, error } = await db.from("requests").select("*").eq("client_id", user.id).order("created_at", { ascending: false });
+    const { data, error } = await db.from("requests").select("id,provider_id,provider_name,category,description,status,created_at").eq("client_id", user.id).order("created_at", { ascending: false });
     if (error) {
         box.innerHTML = `<div class="empty-state"><p>Erreur</p></div>`;        return;
     }
@@ -1098,8 +1098,8 @@ async function displayReceivedRequests() {
     }
     box.innerHTML = `<div class="empty-state"><p>Chargement...</p></div>`;
     const [assignedRes, sosRes] = await Promise.all([
-        db.from("requests").select("*").eq("provider_id", myProvider.id).order("created_at", { ascending: false }).limit(50),
-        db.from("requests").select("*").is("provider_id", null).eq("is_sos", true).eq("category", myProvider.category).order("created_at", { ascending: false }).limit(50)
+        db.from("requests").select("id,client_id,client_name,client_phone,provider_id,provider_name,category,description,location,status,created_at,is_sos").eq("provider_id", myProvider.id).order("created_at", { ascending: false }).limit(50),
+        db.from("requests").select("id,client_id,client_name,client_phone,provider_id,provider_name,category,description,location,status,created_at,is_sos").is("provider_id", null).eq("is_sos", true).eq("category", myProvider.category).order("created_at", { ascending: false }).limit(50)
     ]);
     const data = [...(assignedRes.data || []), ...(sosRes.data || [])]
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -1181,7 +1181,7 @@ async function submitReview() {
     if (!reviewSelectedRating) return toast("Choisissez une note");
     let req = myRequestsCache[reviewTargetRequestId];
     if (!req) {
-        const { data } = await db.from("requests").select("*").eq("id", reviewTargetRequestId).maybeSingle();
+        const { data } = await db.from("requests").select("id,provider_name,status").eq("id", reviewTargetRequestId).maybeSingle();
         req = data;
     }
     if (!req) return toast("Demande introuvable");
@@ -1361,7 +1361,7 @@ async function loadMessages() {
         return;
     }
     box.innerHTML = `<div class="empty-state"><p>Chargement...</p></div>`;
-    const { data, error } = await db.from("messages").select("*")
+    const { data, error } = await db.from("messages").select("id,request_id,sender_id,receiver_id,body,read,created_at")
         .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
         .order("created_at", { ascending: false }).limit(100);
     if (error) {
@@ -1412,7 +1412,7 @@ async function refreshConversation() {
     const box = document.getElementById("conversationMessages");
     if (!box || !currentConversation || !user) return;
     const otherId = currentConversation.otherId;
-    let messageQuery = db.from("messages").select("*")
+    let messageQuery = db.from("messages").select("id,request_id,sender_id,receiver_id,body,read,created_at")
         .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherId}),and(sender_id.eq.${otherId},receiver_id.eq.${user.id})`);
 
     if (currentConversation.requestId) {
@@ -1581,7 +1581,7 @@ async function displayAdminDashboard() {
 async function loadAdminUsers() {
     if (!hasPermission("view_users")) return toast("Permission refusée");
     const box = document.getElementById("adminList");
-    const { data } = await db.from("users").select("*").order("created_at", { ascending: false }).limit(50);
+    const { data } = await db.from("users").select("id,name,phone,city,role,is_admin,is_moderator,suspended,created_at").order("created_at", { ascending: false }).limit(50);
     box.innerHTML = (data || []).map(u => `
         <div class="admin-item">
             <h4>${escapeHTML(u.name || "")} <span class="badge-role">${escapeHTML(u.role || "")}</span>
@@ -1598,7 +1598,7 @@ async function loadAdminUsers() {
 async function loadAdminProviders() {
     if (!hasPermission("view_providers")) return toast("Permission refusée");
     const box = document.getElementById("adminList");
-    const { data } = await db.from("providers").select("*").order("created_at", { ascending: false }).limit(50);
+    const { data } = await db.from("providers").select("id,name,category,city,verified,created_at").order("created_at", { ascending: false }).limit(50);
     box.innerHTML = (data || []).map(p => `
         <div class="admin-item">
             <h4>${escapeHTML(p.name)} ${p.verified ? '<span class="badge-verified">✓</span>' : ""}</h4>
@@ -1615,7 +1615,7 @@ async function loadAdminProviders() {
 async function loadAdminRequests() {
     if (!hasPermission("view_requests")) return toast("Permission refusée");
     const box = document.getElementById("adminList");
-    const { data } = await db.from("requests").select("*").order("created_at", { ascending: false }).limit(50);
+    const { data } = await db.from("requests").select("id,client_name,provider_name,category,description,status,created_at,is_sos").order("created_at", { ascending: false }).limit(50);
     box.innerHTML = (data || []).map(r => `
         <div class="admin-item">
             <h4>${escapeHTML(r.client_name || "")} → ${escapeHTML(r.provider_name || "")}</h4>
@@ -1627,7 +1627,7 @@ async function loadAdminRequests() {
 async function loadAdminModerators() {
     if (!user?.is_admin) return toast("Réservé au propriétaire");
     const box = document.getElementById("adminList");
-    const { data } = await db.from("users").select("*").eq("is_moderator", true);
+    const { data } = await db.from("users").select("id,name,phone").eq("is_moderator", true);
     box.innerHTML = `
         <div class="card" style="margin-bottom:10px;">
             <h3 style="margin-bottom:8px;">Ajouter un modérateur</h3>
@@ -1668,7 +1668,7 @@ async function demoteModerator(userId) {
 
 async function editModeratorPermissions(userId) {
     if (!user?.is_admin) return;
-    const { data } = await db.from("users").select("*").eq("id", userId).maybeSingle();
+    const { data } = await db.from("users").select("id,name,phone,permissions").eq("id", userId).maybeSingle();
     if (!data) return;
     const p = data.permissions || DEFAULT_MOD_PERMISSIONS;
     document.getElementById("adminList").innerHTML = `
