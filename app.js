@@ -296,9 +296,9 @@ async function searchProvidersFromHome() {
     // a raw PostgREST .or() filter expression.
     const pattern = `%${term}%`;
     const [nameRes, categoryRes, cityRes] = await Promise.all([
-        db.from("providers").select("*").ilike("name", pattern).limit(50),
-        db.from("providers").select("*").ilike("category", pattern).limit(50),
-        db.from("providers").select("*").ilike("city", pattern).limit(50)
+        db.from("providers").select("id,user_id,name,slug,category,description,city,district,phone,photo_url,available,verified,rating,completed_requests,price,price_unit,cover_photo_url,theme_color,catalog_style").ilike("name", pattern).limit(50),
+        db.from("providers").select("id,user_id,name,slug,category,description,city,district,phone,photo_url,available,verified,rating,completed_requests,price,price_unit,cover_photo_url,theme_color,catalog_style").ilike("category", pattern).limit(50),
+        db.from("providers").select("id,user_id,name,slug,category,description,city,district,phone,photo_url,available,verified,rating,completed_requests,price,price_unit,cover_photo_url,theme_color,catalog_style").ilike("city", pattern).limit(50)
     ]);
 
     const firstError = nameRes.error || categoryRes.error || cityRes.error;
@@ -513,7 +513,7 @@ async function loadProviders() {
     if (!list) return;
     list.innerHTML = `<div class="empty-state"><p>Chargement...</p></div>`;
 
-    let query = db.from("providers").select("*").order("rating", { ascending: false }).limit(50);
+    let query = db.from("providers").select("id,user_id,name,slug,category,description,city,district,phone,photo_url,available,verified,rating,completed_requests,price,price_unit,cover_photo_url,theme_color,catalog_style").order("rating", { ascending: false }).limit(50);
 
     if (currentCategory && currentCategory !== "Autre métier") {
         query = query.eq("category", currentCategory);
@@ -599,7 +599,7 @@ async function openPublicProfile(providerId) {
     box.innerHTML = `<div class="empty-state"><p>Chargement...</p></div>`;
     showPage("publicProfile");
 
-    const { data: p, error } = await db.from("providers").select("*").eq("id", providerId).maybeSingle();
+    const { data: p, error } = await db.from("providers").select("id,user_id,name,slug,category,description,city,district,phone,photo_url,available,verified,rating,completed_requests,price,price_unit,cover_photo_url,theme_color,catalog_style").eq("id", providerId).maybeSingle();
     if (error || !p) {
         box.innerHTML = `<div class="empty-state"><p>Profil introuvable</p></div>`;
         return;
@@ -607,8 +607,8 @@ async function openPublicProfile(providerId) {
     currentProvider = p;
 
     const [servicesRes, galleryRes, reviewsRes] = await Promise.all([
-        db.from("services").select("*").eq("provider_id", p.id).order("created_at").limit(50),
-        db.from("gallery").select("*").eq("provider_id", p.id).order("created_at", { ascending: false }).limit(50),
+        db.from("services").select("id,provider_id,name,price,description,created_at,unit").eq("provider_id", p.id).order("created_at").limit(50),
+        db.from("gallery").select("id,provider_id,photo_url,caption,created_at").eq("provider_id", p.id).order("created_at", { ascending: false }).limit(50),
         db.from("reviews").select("rating,comment,created_at").eq("provider_id", p.id).order("created_at", { ascending: false }).limit(5)
     ]);
 
@@ -786,7 +786,7 @@ async function openEditProvider() {
             CATEGORIES.map(c => `<option value="${escapeHTML(c.name)}">${escapeHTML(c.name)}</option>`).join("");
     }
 
-    const { data: existing } = await db.from("providers").select("*").eq("user_id", user.id).maybeSingle();
+    const { data: existing } = await db.from("providers").select("id,user_id,name,slug,category,description,city,district,phone,photo_url,formations,available,verified,verification_requested,rating,completed_requests,subscription_status,subscription_plan,trial_ends_at,subscription_renews_at,subscription_requested_plan,subscription_requested_at,created_at,updated_at,catalog_style,cover_photo_url,theme_color,price,price_unit").eq("user_id", user.id).maybeSingle();
 
     document.getElementById("provName").value = existing?.name || user.name || "";
     const isCustom = existing && !STANDARD_CATEGORIES.some(c => c.name === existing.category);
@@ -935,7 +935,7 @@ async function loadGalleryManager(providerId) {
         if (box) box.innerHTML = "";
         return;
     }
-    const { data, error } = await db.from("gallery").select("*").eq("provider_id", providerId).order("created_at", { ascending: false }).limit(50);
+    const { data, error } = await db.from("gallery").select("id,provider_id,photo_url,caption,created_at").eq("provider_id", providerId).order("created_at", { ascending: false }).limit(50);
     if (error) {
         box.innerHTML = `<div class="card"><p class="muted">Erreur galerie</p></div>`;
         return;
@@ -991,7 +991,7 @@ async function loadServicesManager(providerId) {
         if (box) box.innerHTML = "";
         return;
     }
-    const { data } = await db.from("services").select("*").eq("provider_id", providerId).order("created_at").limit(50);
+    const { data } = await db.from("services").select("id,provider_id,name,price,description,created_at,unit").eq("provider_id", providerId).order("created_at").limit(50);
     const list = (data || []).map(s => `
         <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);">
             <div>
@@ -1252,7 +1252,7 @@ async function displayDashboard() {
             <button class="btn-primary full" onclick="showPage('login')">Se connecter</button></div>`;
         return;
     }
-    const { data: p } = await db.from("providers").select("*").eq("user_id", user.id).maybeSingle();
+    const { data: p } = await db.from("providers").select("id,user_id,name,slug,category,description,city,district,phone,photo_url,formations,available,verified,verification_requested,rating,completed_requests,subscription_status,subscription_plan,trial_ends_at,subscription_renews_at,subscription_requested_plan,subscription_requested_at,created_at,updated_at,catalog_style,cover_photo_url,theme_color,price,price_unit").eq("user_id", user.id).maybeSingle();
     if (!p) {
         box.innerHTML = `<div class="card" style="text-align:center;">
             <p class="muted" style="margin-bottom:12px;">Complétez votre profil prestataire</p>
