@@ -1495,7 +1495,7 @@ function startMessagePolling() {
 async function loadAnnouncement() {
     const box = document.getElementById("announcementBanner");
     if (!box) return;
-    const { data } = await db.from("announcements").select("*").order("created_at", { ascending: false }).limit(1);
+    const { data } = await db.from("announcements").select("id,text,created_at").order("created_at", { ascending: false }).limit(1);
     if (!data?.length) {
         box.style.display = "none";
         box.innerHTML = "";
@@ -1511,7 +1511,7 @@ async function loadAdminAnnouncements() {
     if (!user?.is_admin) return toast("Réservé au propriétaire");
     const box = document.getElementById("adminList");
     if (!box) return;
-    const { data } = await db.from("announcements").select("*").order("created_at", { ascending: false }).limit(20);
+    const { data } = await db.from("announcements").select("id,text,created_at").order("created_at", { ascending: false }).limit(20);
     box.innerHTML = `
         <div class="card" style="margin-bottom:10px;">
             <h3 style="margin-bottom:8px;">Nouvelle annonce</h3>
@@ -1718,7 +1718,7 @@ async function toggleVerifyProvider(providerId, verify) {
 async function loadSubscriptionRequests() {
     if (!user?.is_admin) return toast("Réservé au propriétaire");
     const box = document.getElementById("adminList");
-    const { data } = await db.from("providers").select("*")
+    const { data } = await db.from("providers").select("id,name,category,city,subscription_requested_plan,subscription_requested_at")
         .not("subscription_requested_at", "is", null)
         .order("subscription_requested_at", { ascending: false });
     if (!data?.length) {
