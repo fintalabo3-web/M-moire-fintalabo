@@ -513,7 +513,7 @@ async function loadProviders() {
     if (!list) return;
     list.innerHTML = `<div class="empty-state"><p>Chargement...</p></div>`;
 
-    let query = db.from("providers").select("*").order("rating", { ascending: false });
+    let query = db.from("providers").select("*").order("rating", { ascending: false }).limit(50);
 
     if (currentCategory && currentCategory !== "Autre métier") {
         query = query.eq("category", currentCategory);
@@ -607,8 +607,8 @@ async function openPublicProfile(providerId) {
     currentProvider = p;
 
     const [servicesRes, galleryRes, reviewsRes] = await Promise.all([
-        db.from("services").select("*").eq("provider_id", p.id).order("created_at"),
-        db.from("gallery").select("*").eq("provider_id", p.id).order("created_at", { ascending: false }),
+        db.from("services").select("*").eq("provider_id", p.id).order("created_at").limit(50),
+        db.from("gallery").select("*").eq("provider_id", p.id).order("created_at", { ascending: false }).limit(50),
         db.from("reviews").select("rating,comment,created_at").eq("provider_id", p.id).order("created_at", { ascending: false }).limit(5)
     ]);
 
@@ -935,7 +935,7 @@ async function loadGalleryManager(providerId) {
         if (box) box.innerHTML = "";
         return;
     }
-    const { data, error } = await db.from("gallery").select("*").eq("provider_id", providerId).order("created_at", { ascending: false });
+    const { data, error } = await db.from("gallery").select("*").eq("provider_id", providerId).order("created_at", { ascending: false }).limit(50);
     if (error) {
         box.innerHTML = `<div class="card"><p class="muted">Erreur galerie</p></div>`;
         return;
@@ -991,7 +991,7 @@ async function loadServicesManager(providerId) {
         if (box) box.innerHTML = "";
         return;
     }
-    const { data } = await db.from("services").select("*").eq("provider_id", providerId).order("created_at");
+    const { data } = await db.from("services").select("*").eq("provider_id", providerId).order("created_at").limit(50);
     const list = (data || []).map(s => `
         <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);">
             <div>
@@ -1098,8 +1098,8 @@ async function displayReceivedRequests() {
     }
     box.innerHTML = `<div class="empty-state"><p>Chargement...</p></div>`;
     const [assignedRes, sosRes] = await Promise.all([
-        db.from("requests").select("*").eq("provider_id", myProvider.id).order("created_at", { ascending: false }),
-        db.from("requests").select("*").is("provider_id", null).eq("is_sos", true).eq("category", myProvider.category).order("created_at", { ascending: false })
+        db.from("requests").select("*").eq("provider_id", myProvider.id).order("created_at", { ascending: false }).limit(50),
+        db.from("requests").select("*").is("provider_id", null).eq("is_sos", true).eq("category", myProvider.category).order("created_at", { ascending: false }).limit(50)
     ]);
     const data = [...(assignedRes.data || []), ...(sosRes.data || [])]
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
