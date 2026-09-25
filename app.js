@@ -1,10 +1,13 @@
 "use strict";
 (async function(){
   try {
-    const parts = await Promise.all([0,1,2,3].map(i => fetch("./app.part"+i+".js").then(r=>r.text())));
+    const n = 8;
+    const parts = await Promise.all(
+      Array.from({length: n}, (_, i) => fetch("./p"+i+".js").then(r => r.text()))
+    );
     (0, eval)(parts.join(""));
-  } catch(e) {
+  } catch (e) {
     console.error(e);
-    document.body.innerHTML = "<p style=\"padding:2rem\">Erreur de chargement</p>";
+    document.body.innerHTML = "<p style=\"padding:2rem;font-family:sans-serif\">Erreur de chargement. Rechargez.</p>";
   }
 })();
