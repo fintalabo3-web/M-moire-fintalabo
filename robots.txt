@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# SPA : les routes utiles sont listées dans le sitemap
+Sitemap: https://fasoservice.netlify.app/sitemap.xml
+
+# Ne pas indexer les assets purement techniques
+Disallow: /app.js
+Disallow: /*.json$
