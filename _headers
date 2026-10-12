@@ -1,18 +1,16 @@
-/*
+/
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(self), microphone=(), camera=(self)
 
-/index.html
+/app.js
   Cache-Control: public, max-age=0, must-revalidate
 
-/sitemap.xml
-  Content-Type: application/xml
-  Cache-Control: public, max-age=3600
+/style.css
+  Cache-Control: public, max-age=0, must-revalidate
 
-/robots.txt
-  Cache-Control: public, max-age=3600
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
 
-/*.js
-  Cache-Control: public, max-age=300
+/manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
