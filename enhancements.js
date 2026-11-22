@@ -125,8 +125,8 @@
     }
     const renderNearby = () => {
       const city = citySelect && citySelect.value ? citySelect.value : profileCity;
-      const nearby = providers.filter(p => !city || String(p.city || "").toLowerCase() === city.toLowerCase())
-        .sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0)).slice(0, 4);
+      const nearby = city ? providers.filter(p => String(p.city || "").toLowerCase() === city.toLowerCase())
+        .sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0)).slice(0, 4) : [];
       const hint = $("#nearbyHint");
       if (hint) hint.textContent = city
         ? "Prestataires répertoriés à " + city + "."
@@ -142,8 +142,8 @@
     renderNearby();
 
     const popular = providers.slice().sort((a, b) => {
-      const verified = Number(Boolean(b.verified)) - Number(Boolean(a.verified));
-      return verified || (Number(b.rating) || 0) - (Number(a.rating) || 0);
+      const rating = (Number(b.rating) || 0) - (Number(a.rating) || 0);
+      return rating || (Number(Boolean(b.verified)) - Number(Boolean(a.verified)));
     }).slice(0, 4);
     const newest = providers.slice().sort((a, b) =>
       new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
