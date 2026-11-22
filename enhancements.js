@@ -188,7 +188,7 @@
     if (!account || !window.MutationObserver) return;
     const apply = () => {
       const actions = account.lastElementChild;
-      if (actions && actions.tagName === "DIV" && actions.querySelector("button")) {
+      if (actions && actions.tagName === "DIV" && !actions.classList.contains("card") && actions.querySelector("button")) {
         actions.classList.add("account-actions-grid");
       }
     };
