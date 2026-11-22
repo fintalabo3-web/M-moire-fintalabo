@@ -4,7 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0B7A4B">
+    <meta name="color-scheme" content="light dark">
     <meta name="description" content="FasoService — Trouvez un professionnel de confiance près de chez vous au Burkina Faso.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="FasoService — Trouvez un professionnel de confiance">
+    <meta property="og:description" content="Trouvez un artisan ou un spécialiste près de chez vous au Burkina Faso.">
+    <meta property="og:image" content="https://fasoservice.netlify.app/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FasoService">
+    <meta name="twitter:image" content="https://fasoservice.netlify.app/og-image.png">
     <title>FasoService</title>
 
     <link rel="manifest" href="manifest.json">
@@ -30,6 +38,8 @@
             <button id="modeProvider" class="mode-btn" onclick="switchMode('provider')">Mode prestataire</button>
         </div>
 
+        <button id="installAppBtn" class="install-app-btn" type="button" aria-label="Installer FasoService"><i data-lucide="download"></i><span>Installer</span></button>
+        <button id="themeToggle" class="header-btn theme-toggle" type="button" aria-label="Activer le mode sombre" title="Changer de thème"><i data-lucide="moon"></i></button>
         <button class="header-btn" onclick="showPage('account')" aria-label="Mon compte">
             <i data-lucide="user"></i>
         </button>
@@ -56,6 +66,20 @@
             </div>
 
             <div id="announcementBanner" style="display:none;margin-bottom:14px;"></div>
+            <section class="section home-carousel-section" aria-label="À la une">
+              <div class="promo-carousel" id="promoCarousel">
+                <article class="promo-slide active promo-slide-one">
+                  <div class="promo-copy"><span class="eyebrow">FasoService · Burkina Faso</span><h2>Le bon professionnel, au bon moment.</h2><p>Trouvez un artisan ou un spécialiste près de chez vous.</p><button class="promo-cta" type="button" onclick="document.getElementById('searchInput').focus()">Trouver un pro <i data-lucide="arrow-right"></i></button></div>
+                  <div class="promo-art" aria-hidden="true"><svg viewBox="0 0 240 210"><circle cx="124" cy="102" r="88" fill="#fff" opacity=".14"/><path d="M50 185h145" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".45"/><path d="M83 181l12-67q28-22 58 0l14 67" fill="#f0b44d"/><path d="M91 116q28-23 64 0l-7 25H96z" fill="#fff" opacity=".9"/><circle cx="126" cy="66" r="27" fill="#7a4328"/><path d="M99 65q4-35 31-34 24 2 25 33-17-15-31-13-12 1-25 14" fill="#24221f"/><path d="M99 55q27-29 56-3l-3 12q-23-13-52 2z" fill="#e6a23a"/><path d="M108 88q18 12 36 0" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M65 146l-16-28m16 28 18-20m98 21 18-29m-18 29-18-20" stroke="#fff" stroke-width="8" stroke-linecap="round"/><circle cx="46" cy="109" r="13" fill="#f0b44d"/><path d="M39 109h14m-7-7v14" stroke="#70441c" stroke-width="3" stroke-linecap="round"/></svg></div>
+                </article>
+                <article class="promo-slide promo-slide-two"><div class="promo-copy"><span class="eyebrow">Pour les professionnels</span><h2>Faites connaître votre savoir-faire.</h2><p>Créez votre profil et recevez des demandes de clients.</p><button class="promo-cta" type="button" onclick="startRegister('provider')">Devenir prestataire <i data-lucide="arrow-right"></i></button></div><div class="promo-art" aria-hidden="true"><svg viewBox="0 0 240 210"><circle cx="120" cy="105" r="88" fill="#fff" opacity=".18"/><rect x="67" y="62" width="105" height="98" rx="18" fill="#fff" opacity=".92"/><path d="M91 89h57M91 111h44M91 133h31" stroke="#0b7a4b" stroke-width="8" stroke-linecap="round"/><circle cx="173" cy="65" r="27" fill="#e4a13b"/><path d="M161 65l9 9 17-20" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></article>
+                <article class="promo-slide promo-slide-three"><div class="promo-copy"><span class="eyebrow">Un service urgent ?</span><h2>Votre besoin ne peut pas attendre.</h2><p>Décrivez votre urgence et transmettez votre demande.</p><button class="promo-cta" type="button" onclick="openSOS()">Lancer une demande SOS <i data-lucide="arrow-right"></i></button></div><div class="promo-art" aria-hidden="true"><svg viewBox="0 0 240 210"><circle cx="120" cy="105" r="88" fill="#fff" opacity=".15"/><path d="M120 42l65 118H55z" fill="#f0b44d"/><path d="M120 80v38" stroke="#fff" stroke-width="12" stroke-linecap="round"/><circle cx="120" cy="140" r="7" fill="#fff"/></svg></div></article>
+                <div class="promo-controls"><button type="button" id="promoPrev" aria-label="Bannière précédente"><i data-lucide="chevron-left"></i></button><div class="promo-dots" id="promoDots" aria-label="Choisir une bannière"></div><button type="button" id="promoNext" aria-label="Bannière suivante"><i data-lucide="chevron-right"></i></button></div>
+              </div>
+            </section>
+            <section class="section discovery-section" id="nearbySection"><div class="section-header discovery-heading"><div><span class="section-kicker">Autour de vous</span><h2>Pros près de vous</h2></div><label class="city-select-wrap" for="nearbyCityFilter"><i data-lucide="map-pin"></i><select id="nearbyCityFilter" aria-label="Choisir une ville"><option value="">Toutes les villes</option></select></label></div><p class="section-subtitle" id="nearbyHint">Choisissez votre ville pour affiner les résultats.</p><div class="provider-collection" id="nearbyProviders"><div class="skeleton-card"></div><div class="skeleton-card"></div></div></section>
+            <section class="section discovery-section"><div class="section-header"><div><span class="section-kicker">Les mieux notés</span><h2>Populaires</h2></div></div><div class="provider-collection" id="popularProviders"><div class="skeleton-card"></div><div class="skeleton-card"></div></div></section>
+            <section class="section discovery-section"><div class="section-header"><div><span class="section-kicker">À découvrir</span><h2>Nouveaux prestataires</h2></div></div><div class="provider-collection" id="newProviders"><div class="skeleton-card"></div><div class="skeleton-card"></div></div></section>
 
             <div class="section">
                 <div class="section-header">
@@ -424,7 +448,7 @@
                 <button class="btn-secondary full" onclick="loadAdminProviders()">Prestataires</button>
                 <button class="btn-secondary full" onclick="loadAdminRequests()">Demandes</button>
             </div>
-            <div id="adminList" style="margin-top:12px;"></div>
+            <div id="modAdminList" style="margin-top:12px;"></div>
         </section>
 
     </main>
@@ -434,5 +458,6 @@
 
 <div id="toastContainer" class="toast-container"></div>
 <script src="app.js"></script>
+<script src="enhancements.js"></script>
 </body>
 </html>

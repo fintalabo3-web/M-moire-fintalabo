@@ -6,6 +6,9 @@
 /app.js
   Cache-Control: public, max-age=0, must-revalidate
 
+/enhancements.js
+  Cache-Control: public, max-age=0, must-revalidate
+
 /style.css
   Cache-Control: public, max-age=0, must-revalidate
 

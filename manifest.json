@@ -1,7 +1,7 @@
 {
   "name": "FasoService",
   "short_name": "FasoService",
-  "description": "Trouvez un professionnel de confiance pr\u00e8s de chez vous au Burkina Faso.",
+  "description": "Trouvez un professionnel de confiance près de chez vous au Burkina Faso.",
   "lang": "fr",
   "start_url": "/",
   "scope": "/",
@@ -12,9 +12,12 @@
     "minimal-ui"
   ],
   "orientation": "portrait-primary",
-  "background_color": "#0D9B5A",
-  "theme_color": "#0D9B5A",
-  "categories": ["business", "lifestyle"],
+  "background_color": "#F5F8F5",
+  "theme_color": "#0B7A4B",
+  "categories": [
+    "business",
+    "lifestyle"
+  ],
   "icons": [
     {
       "src": "/icon-192.png",
