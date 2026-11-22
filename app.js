@@ -453,8 +453,8 @@ async function displayAccount() {
         box.innerHTML = `
             <div class="card" style="text-align:center;padding:32px 16px;">
                 <p class="muted" style="margin-bottom:16px;">Connectez-vous pour accéder à votre compte</p>
-                <button class="btn-primary full" onclick="showPage('login')">Se connecter</button>
-                <button class="link-btn" onclick="showPage('registerChoice')">Créer un compte</button>
+                <button class="btn-primary full" onclick="showPage('login')"><i data-lucide="log-in"></i> Se connecter</button>
+                <button class="link-btn" onclick="showPage('registerChoice')"><i data-lucide="user-plus"></i> Créer un compte</button>
             </div>`;
         return;
     }
@@ -479,17 +479,17 @@ async function displayAccount() {
             ${providerInfo}
         </div>
         <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
-            ${user.is_admin ? `<button class="btn-primary full" onclick="showPage('adminDashboard')">Administration</button>` : ""}
-            ${user.is_moderator ? `<button class="btn-primary full" onclick="showPage('modDashboard')">Espace Modération</button>` : ""}
+            ${user.is_admin ? `<button class="btn-primary full" onclick="showPage('adminDashboard')"><i data-lucide="shield-check"></i> Administration</button>` : ""}
+            ${user.is_moderator ? `<button class="btn-primary full" onclick="showPage('modDashboard')"><i data-lucide="shield"></i> Espace Modération</button>` : ""}
             ${isProvider ? `
-                <button class="btn-primary full" onclick="openEditProvider()">Mon profil prestataire</button>
-                <button class="btn-secondary full" onclick="showPage('dashboard')">Tableau de bord</button>
-            ` : `<button class="btn-secondary full" onclick="showPage('myRequests')">Mes demandes</button>`}
-            <button class="btn-secondary full" onclick="requestBrowserNotifications().then(ok=>toast(ok?'Notifications activées':'Notifications refusées ou indisponibles'))">Activer les notifications</button>
-            <button class="btn-secondary full" style="color:#B91C1C;border-color:#FECACA;" onclick="logout()">Se déconnecter</button>
+                <button class="btn-primary full" onclick="openEditProvider()"><i data-lucide="briefcase-business"></i> Mon profil prestataire</button>
+                <button class="btn-secondary full" onclick="showPage('dashboard')"><i data-lucide="layout-dashboard"></i> Tableau de bord</button>
+            ` : `<button class="btn-secondary full" onclick="showPage('myRequests')"><i data-lucide="clipboard-list"></i> Mes demandes</button>`}
+            <button class="btn-secondary full" onclick="requestBrowserNotifications().then(ok=>toast(ok?'Notifications activées':'Notifications refusées ou indisponibles'))"><i data-lucide="bell"></i> Activer les notifications</button>
+            <button class="btn-secondary full" style="color:#B91C1C;border-color:#FECACA;" onclick="logout()"><i data-lucide="log-out"></i> Se déconnecter</button>
         </div>`;
+    if (window.lucide) window.lucide.createIcons();
 }
-
 /* ========== PRESTATAIRES ========== */
 
 async function openCategory(name) {
