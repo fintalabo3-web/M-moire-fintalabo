@@ -20,11 +20,10 @@
     const headY = compact ? 37 : 66;
     const headR = compact ? 17 : 25;
     return `<svg viewBox="0 0 160 160" role="img" aria-label="Illustration d'un professionnel ${label}" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="shirt-${compact ? "s" : "l"}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${p.shirt}"/><stop offset="1" stop-color="${p.accent}"/></linearGradient></defs>
       <rect width="160" height="160" rx="24" fill="${p.bg}"/>
       <circle cx="124" cy="31" r="18" fill="#fff" opacity=".6"/>
       <path d="M15 142c14-24 35-35 65-35s52 11 65 35v18H15z" fill="#D4E3D8"/>
-      <path d="M36 160c2-34 17-51 44-51s42 17 44 51" fill="url(#shirt-${compact ? "s" : "l"})"/>
+      <path d="M36 160c2-34 17-51 44-51s42 17 44 51" fill="${p.shirt}"/>
       <path d="M58 109l22 21 22-21-9-12H67z" fill="#F0B28A"/>
       <circle cx="80" cy="${headY}" r="${headR}" fill="#874B32"/>
       <path d="M55 61q1-29 26-30 25 0 27 31-12-12-26-12-14 0-27 11" fill="#211D1A"/>
