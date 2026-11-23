@@ -1495,66 +1495,126 @@ function startMessagePolling() {
     window._msgPoll = setInterval(pollUnreadMessages, 20000);
 }
 
-/* ========== ANNONCES ========== */
-
-async function loadAnnouncement() {
-    const box = document.getElementById("announcementBanner");
-    if (!box) return;
-    const { data } = await db.from("announcements").select("*").order("created_at", { ascending: false }).limit(1);
-    if (!data?.length) {
-        box.style.display = "none";
-        box.innerHTML = "";
-        return;
-    }
-    box.style.display = "block";
-    box.innerHTML = `<div class="card" style="margin-bottom:0;">
-        <p style="font-size:0.88rem;line-height:1.4;"><strong style="color:var(--green);">Annonce</strong> — ${escapeHTML(data[0].text)}</p>
-    </div>`;
+/* ========== ANNONCES MULTIMÉDIAS ========== */
+const ANNOUNCEMENT_BUCKET = "announcements-media";
+const ANNOUNCEMENT_FILE_RULES = {
+ image:{max:10*1024*1024,label:"10 Mo",types:["image/jpeg","image/png","image/webp","image/gif"]},
+ audio:{max:25*1024*1024,label:"25 Mo",types:["audio/mpeg","audio/mp4","audio/aac","audio/ogg","audio/wav","audio/webm"]},
+ video:{max:100*1024*1024,label:"100 Mo",types:["video/mp4","video/webm","video/quicktime"]}
+};
+function getAnnouncementMedia(a){
+ if(Array.isArray(a?.media))return a.media;
+ if(typeof a?.media==="string"){try{const v=JSON.parse(a.media);return Array.isArray(v)?v:[]}catch(_){return[]}}
+ return[];
 }
-
-async function loadAdminAnnouncements() {
-    if (!user?.is_admin) return toast("Réservé au propriétaire");
-    const box = getAdminList();
-    if (!box) return;
-    const { data } = await db.from("announcements").select("*").order("created_at", { ascending: false }).limit(20);
-    box.innerHTML = `
-        <div class="card" style="margin-bottom:10px;">
-            <h3 style="margin-bottom:8px;">Nouvelle annonce</h3>
-            <textarea id="newAnnouncement" rows="3" placeholder="Texte de l'annonce..."></textarea>
-            <button class="btn-primary full" style="margin-top:10px;" onclick="createAnnouncement()">Publier</button>
-        </div>
-        ${(data || []).map(a => `
-            <div class="admin-item">
-                <p>${escapeHTML(a.text)}</p>
-                <p class="muted" style="margin-top:4px;font-size:0.78rem;">${new Date(a.created_at).toLocaleString("fr-FR")}</p>
-                <div class="admin-actions">
-                    <button class="btn-secondary" style="color:#B91C1C;border-color:#FECACA;" onclick="deleteAnnouncement('${a.id}')">Supprimer</button>
-                </div>
-            </div>`).join("") || `<div class="empty-state"><p>Aucune annonce</p></div>`}`;
+function renderAnnouncementMedia(media){
+ return(media||[]).map(item=>{
+  const url=safeHttpUrl(item.url||"");if(!url)return"";
+  const label=escapeHTML(item.name||"Média");
+  if(item.type==="image")return `<a class="announcement-image-link" href="${url}" target="_blank" rel="noopener"><img class="announcement-image" src="${url}" alt="${label}" loading="lazy"></a>`;
+  if(item.type==="video")return `<video class="announcement-video" controls playsinline preload="metadata" aria-label="${label}"><source src="${url}" type="${escapeHTML(item.mime||"video/mp4")}">Votre navigateur ne peut pas lire cette vidéo.</video>`;
+  if(item.type==="audio")return `<div class="announcement-audio"><div class="announcement-media-label">Audio · ${label}</div><audio controls preload="none"><source src="${url}" type="${escapeHTML(item.mime||"audio/mpeg")}"></audio></div>`;
+  return"";
+ }).join("");
 }
-
-async function createAnnouncement() {
-    if (!user?.is_admin) return;
-    const text = document.getElementById("newAnnouncement")?.value.trim();
-    if (!text) return toast("Écrivez une annonce");
-    const { error } = await db.rpc("admin_create_announcement", {
-        new_text: text
-    });
-    if (error) return toast("Erreur : " + error.message);
-    toast("Publiée");
-    loadAdminAnnouncements();
-    loadAnnouncement();
+function renderAnnouncementCard(a,admin=false){
+ const title=a.title?`<h3 class="announcement-title">${escapeHTML(a.title)}</h3>`:"";
+ const text=a.text?`<p class="announcement-text">${escapeHTML(a.text).replace(/\\n/g,"<br>")}</p>`:"";
+ const media=renderAnnouncementMedia(getAnnouncementMedia(a));
+ const link=a.link_url&&safeHttpUrl(a.link_url)?`<a class="announcement-link" href="${safeHttpUrl(a.link_url)}" target="_blank" rel="noopener noreferrer"><span>${escapeHTML(a.link_label||"Ouvrir le lien")}</span><span aria-hidden="true">↗</span></a>`:"";
+ const date=a.created_at?`<p class="announcement-date">${new Date(a.created_at).toLocaleString("fr-FR")}</p>`:"";
+ return `<article class="card announcement-card"><div class="announcement-heading"><span class="announcement-tag">Annonce FasoService</span></div>${title}${text}${media?`<div class="announcement-media-grid">${media}</div>`:""}${link}${date}${admin?`<div class="admin-actions"><button class="btn-secondary" style="color:#B91C1C;border-color:#FECACA;" onclick="deleteAnnouncement('${a.id}')">Supprimer</button></div>`:""}</article>`;
 }
-
-async function deleteAnnouncement(id) {
-    if (!user?.is_admin || !confirm("Supprimer ?")) return;
-    const { error } = await db.rpc("admin_delete_announcement", {
-        target_announcement_id: id
-    });
-    if (error) return toast("Erreur : " + error.message);
-    toast("Supprimée");
-    loadAdminAnnouncements();
-    loadAnnouncement();
+async function loadAnnouncement(){
+ const box=document.getElementById("announcementBanner");if(!box)return;
+ const {data,error}=await db.from("announcements").select("*").order("created_at",{ascending:false}).limit(1);
+ if(error||!data?.length){box.style.display="none";box.innerHTML="";return}
+ box.style.display="block";box.innerHTML=renderAnnouncementCard(data[0]);
+}
+function announcementComposerHTML(){
+ return `<div class="card announcement-composer"><h3>Créer une annonce</h3>
+ <p class="muted announcement-help">Combinez texte, images, audio, vidéo et lien dans une même publication.</p>
+ <label for="newAnnouncementTitle">Titre</label><input id="newAnnouncementTitle" type="text" maxlength="140" placeholder="Titre de l'annonce">
+ <label for="newAnnouncement">Texte</label><textarea id="newAnnouncement" rows="4" maxlength="5000" placeholder="Rédigez votre message..."></textarea>
+ <div class="announcement-upload-zone"><label for="announcementMediaInput">Ajouter des médias</label>
+ <input id="announcementMediaInput" type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,audio/mpeg,audio/mp4,audio/aac,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm,video/quicktime" onchange="previewAnnouncementMedia()">
+ <p class="muted">Images : 10 Mo · Audio : 25 Mo · Vidéo : 100 Mo · 10 fichiers maximum</p><div id="announcementMediaPreview" class="announcement-preview-grid"></div></div>
+ <div class="announcement-link-fields"><label for="announcementLinkUrl">Lien (facultatif)</label><input id="announcementLinkUrl" type="url" inputmode="url" placeholder="https://exemple.com">
+ <label for="announcementLinkLabel">Texte du lien</label><input id="announcementLinkLabel" type="text" maxlength="80" placeholder="En savoir plus, WhatsApp, site web..."></div>
+ <button class="btn-primary full announcement-publish" id="publishAnnouncementButton" onclick="createAnnouncement()">Publier l'annonce</button></div>`;
+}
+function clearAnnouncementPreview(){
+ const preview=document.getElementById("announcementMediaPreview");if(!preview)return;
+ preview.querySelectorAll("[data-preview-url]").forEach(n=>URL.revokeObjectURL(n.dataset.previewUrl));preview.innerHTML="";
+}
+function previewAnnouncementMedia(){
+ const input=document.getElementById("announcementMediaInput"),preview=document.getElementById("announcementMediaPreview");if(!input||!preview)return;
+ clearAnnouncementPreview();const files=Array.from(input.files||[]);
+ if(files.length>10){toast("10 fichiers maximum par annonce");input.value="";return}
+ for(const file of files){
+  const kind=file.type.startsWith("image/")?"image":file.type.startsWith("audio/")?"audio":file.type.startsWith("video/")?"video":"";
+  const rule=ANNOUNCEMENT_FILE_RULES[kind];
+  if(!rule||!rule.types.includes(file.type)||file.size>rule.max){toast("Format non accepté ou fichier trop volumineux : "+file.name);input.value="";clearAnnouncementPreview();return}
+  const url=URL.createObjectURL(file),item=document.createElement("div");item.className="announcement-preview-item";item.dataset.previewUrl=url;
+  const name=escapeHTML(file.name);
+  if(kind==="image")item.innerHTML=`<img src="${url}" alt="${name}"><span>${name}</span>`;
+  else if(kind==="video")item.innerHTML=`<video src="${url}" muted playsinline></video><span>Vidéo · ${name}</span>`;
+  else item.innerHTML=`<div class="announcement-file-icon">♫</div><span>Audio · ${name}</span>`;
+  preview.appendChild(item);
+ }
+}
+function validateAnnouncementLink(value){
+ if(!value)return"";try{const u=new URL(value);return u.protocol==="https:"||u.protocol==="http:"?u.href:""}catch(_){return""}
+}
+async function uploadAnnouncementMedia(file,index){
+ const kind=file.type.startsWith("image/")?"image":file.type.startsWith("audio/")?"audio":"video";
+ const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,8)||"bin";
+ const path=`${user.id}/${Date.now()}-${index}-${Math.random().toString(36).slice(2,9)}.${ext}`;
+ const {error}=await db.storage.from(ANNOUNCEMENT_BUCKET).upload(path,file,{cacheControl:"31536000",contentType:file.type,upsert:false});
+ if(error)throw error;const {data}=db.storage.from(ANNOUNCEMENT_BUCKET).getPublicUrl(path);
+ if(!data?.publicUrl)throw new Error("Impossible de générer le lien du média");
+ return{type:kind,url:data.publicUrl,name:file.name,mime:file.type,path};
+}
+async function loadAdminAnnouncements(){
+ if(!user?.is_admin)return toast("Réservé au propriétaire");
+ const box=getAdminList();if(!box)return;
+ const {data,error}=await db.from("announcements").select("*").order("created_at",{ascending:false}).limit(20);
+ if(error)return toast("Impossible de charger les annonces : "+error.message);
+ box.innerHTML=announcementComposerHTML()+((data||[]).map(a=>renderAnnouncementCard(a,true)).join("")||'<div class="empty-state"><p>Aucune annonce</p></div>');
+}
+async function createAnnouncement(){
+ if(!user?.is_admin)return toast("Réservé au propriétaire");
+ const title=document.getElementById("newAnnouncementTitle")?.value.trim()||"";
+ const text=document.getElementById("newAnnouncement")?.value.trim()||"";
+ const input=document.getElementById("announcementMediaInput"),files=Array.from(input?.files||[]);
+ const rawLink=document.getElementById("announcementLinkUrl")?.value.trim()||"",linkUrl=validateAnnouncementLink(rawLink);
+ const linkLabel=document.getElementById("announcementLinkLabel")?.value.trim()||"";
+ if(rawLink&&!linkUrl)return toast("Le lien doit commencer par http:// ou https://");
+ if(!title&&!text&&!files.length&&!linkUrl)return toast("Ajoutez du texte, un média ou un lien");
+ if(files.length>10)return toast("10 fichiers maximum par annonce");
+ const button=document.getElementById("publishAnnouncementButton");
+ if(button){button.disabled=true;button.textContent="Publication en cours…"}
+ try{
+  const media=[];
+  for(let i=0;i<files.length;i++){
+   const file=files[i],kind=file.type.startsWith("image/")?"image":file.type.startsWith("audio/")?"audio":file.type.startsWith("video/")?"video":"",rule=ANNOUNCEMENT_FILE_RULES[kind];
+   if(!rule||!rule.types.includes(file.type)||file.size>rule.max)throw new Error("Fichier non accepté ou taille maximale dépassée : "+file.name);
+   media.push(await uploadAnnouncementMedia(file,i));
+  }
+  const {error}=await db.rpc("admin_create_rich_announcement",{new_title:title||null,new_text:text||null,new_media:media,new_link_url:linkUrl||null,new_link_label:linkLabel||null});
+  if(error)throw error;
+  clearAnnouncementPreview();toast("Annonce publiée");await loadAdminAnnouncements();await loadAnnouncement();
+ }catch(error){toast("Erreur : "+(error?.message||"publication impossible"))}
+ finally{const b=document.getElementById("publishAnnouncementButton");if(b){b.disabled=false;b.textContent="Publier l'annonce"}}
+}
+async function deleteAnnouncement(id){
+ if(!user?.is_admin||!confirm("Supprimer cette annonce ?"))return;
+ const {data:announcement}=await db.from("announcements").select("media").eq("id",id).maybeSingle();
+ const {error}=await db.rpc("admin_delete_announcement",{target_announcement_id:id});
+ if(error)return toast("Erreur : "+error.message);
+ const paths=getAnnouncementMedia(announcement||{}).map(item=>item.path).filter(Boolean);
+ if(paths.length){const {error:storageError}=await db.storage.from(ANNOUNCEMENT_BUCKET).remove(paths);if(storageError)console.warn("Nettoyage médias impossible :",storageError.message)}
+ toast("Annonce supprimée");await loadAdminAnnouncements();await loadAnnouncement();
 }
 
 /* ========== ADMIN ========== */
