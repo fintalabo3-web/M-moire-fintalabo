@@ -265,7 +265,7 @@ function renderCategories() {
     if (!grid) return;
     grid.innerHTML = CATEGORIES.map(cat => `
         <button class="category" onclick="openCategory('${cat.name.replace(/'/g, "\\'")}')">
-            <i data-lucide="${cat.icon}"></i>
+            <span class="category-art">${window.FSArt ? window.FSArt.category(cat.name) : `<i data-lucide="${cat.icon}"></i>`}</span>
             <span>${cat.name}</span>
         </button>
     `).join("");
@@ -572,7 +572,7 @@ function renderProviderCard(p) {
         <div class="${cardClass}" onclick="openPublicProfile('${p.id}')">
             <div class="provider-top">
                 <div class="avatar">
-                    ${p.photo_url ? `<img src="${safeHttpUrl(p.photo_url)}" alt="">` : initial}
+                    ${p.photo_url ? `<img src="${safeHttpUrl(p.photo_url)}" alt="Photo de ${escapeHTML(p.name || "prestataire")}" loading="lazy" decoding="async">` : (window.FSArt ? window.FSArt.person(p.category, true) : initial)}
                 </div>
                 <div class="provider-info">
                     <h3>
@@ -656,9 +656,9 @@ async function openPublicProfile(providerId) {
         : `<p class="muted">Pas encore d'avis</p>`;
 
     box.innerHTML = `
-        <div class="card" style="text-align:center;">
+        <div class="card public-profile-main-card" style="text-align:center;">
             <div class="profile-avatar">
-                ${p.photo_url ? `<img src="${safeHttpUrl(p.photo_url)}" alt="">` : initial}
+                ${p.photo_url ? `<img src="${safeHttpUrl(p.photo_url)}" alt="Photo de ${escapeHTML(p.name || "prestataire")}" loading="eager" decoding="async">` : (window.FSArt ? window.FSArt.person(p.category, false) : initial)}
             </div>
             <h2 style="margin-bottom:4px;">${escapeHTML(p.name)}</h2>
             <p class="muted">${escapeHTML(p.category)} · ${escapeHTML(p.city || "")}${p.district ? " · " + escapeHTML(p.district) : ""}</p>
