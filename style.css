@@ -82,3 +82,155 @@ body[data-theme="dark"] .header,body[data-theme="dark"] .bottom-nav{background:#
         height: min(42vw, 420px);
     }
 }
+
+/* Illustrations FasoService — SVG locales, légères et adaptées au mobile */
+.hero-illustration {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    height: 104px;
+    margin: -8px 0 -2px;
+    pointer-events: none;
+}
+.hero-illustration svg {
+    display: block;
+    width: min(46%, 172px);
+    height: 112px;
+    overflow: visible;
+    filter: drop-shadow(0 9px 10px #052f1c30);
+}
+.hero .search-box,
+.hero .sos-btn {
+    position: relative;
+    z-index: 2;
+}
+.category {
+    overflow: hidden;
+}
+.category-art {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    max-width: 100px;
+    height: 58px;
+}
+.category-art svg {
+    display: block;
+    width: 100%;
+    height: 58px;
+    max-width: 100px;
+    stroke-width: initial;
+}
+.category > span:last-child {
+    line-height: 1.25;
+}
+.avatar {
+    position: relative;
+}
+.avatar > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+}
+.provider-card .avatar {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+}
+#publicProfile.page.active #publicProfileContent {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+#publicProfileContent > * {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+#publicProfileContent .public-profile-main-card {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: 14px;
+    overflow: hidden;
+    text-align: center;
+}
+#publicProfileContent .profile-avatar {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: clamp(220px, 76vw, 480px);
+    max-height: 480px;
+    margin: 0 0 16px;
+    overflow: hidden;
+    border-radius: 15px;
+    background: var(--green-soft);
+}
+#publicProfileContent .profile-avatar img,
+#publicProfileContent .profile-avatar > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    object-position: center 35%;
+}
+#publicProfileContent .profile-avatar > svg {
+    object-fit: contain;
+}
+#publicProfileContent .card,
+#publicProfileContent .card * {
+    min-width: 0;
+}
+#publicProfileContent img {
+    max-width: 100%;
+}
+#publicProfileContent p,
+#publicProfileContent h2,
+#publicProfileContent h3,
+#publicProfileContent strong {
+    overflow-wrap: anywhere;
+}
+@media (min-width: 650px) {
+    .hero-illustration {
+        position: absolute;
+        right: 24px;
+        top: 16px;
+        width: 190px;
+        height: 150px;
+        margin: 0;
+    }
+    .hero-illustration svg {
+        width: 100%;
+        height: 150px;
+    }
+    .hero h1,
+    .hero > p {
+        max-width: calc(100% - 175px);
+    }
+    #publicProfileContent .profile-avatar {
+        height: min(54vw, 480px);
+    }
+}
+@media (max-width: 420px) {
+    .hero-illustration {
+        height: 86px;
+        margin-top: -5px;
+    }
+    .hero-illustration svg {
+        width: 118px;
+        height: 88px;
+    }
+    .provider-card .avatar {
+        width: 52px;
+        height: 52px;
+    }
+    #publicProfileContent .public-profile-main-card {
+        padding: 11px;
+    }
+}
