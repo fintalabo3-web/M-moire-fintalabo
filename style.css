@@ -234,3 +234,33 @@ body[data-theme="dark"] .header,body[data-theme="dark"] .bottom-nav{background:#
         padding: 11px;
     }
 }
+
+/* Annonces multimédias FasoService */
+.announcement-card{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;overflow:hidden}
+.announcement-heading{display:flex;align-items:center;justify-content:space-between}
+.announcement-tag{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:var(--green-soft);color:var(--green);font-size:.75rem;font-weight:750}
+.announcement-title{margin:0;font-size:1.08rem;line-height:1.35;color:var(--text)}
+.announcement-text{margin:0;white-space:normal;overflow-wrap:anywhere;line-height:1.55;font-size:.94rem}
+.announcement-media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;min-width:0}
+.announcement-image-link{display:block;min-width:0;overflow:hidden;border-radius:12px;background:var(--green-soft)}
+.announcement-image{display:block;width:100%;max-height:360px;aspect-ratio:4/3;object-fit:cover}
+.announcement-video{display:block;width:100%;max-height:440px;grid-column:1/-1;border-radius:12px;background:#111}
+.announcement-audio{grid-column:1/-1;display:flex;flex-direction:column;gap:7px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface,#fff)}
+.announcement-audio audio{width:100%;max-width:100%}
+.announcement-media-label{font-size:.82rem;font-weight:650;overflow-wrap:anywhere}
+.announcement-link{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid var(--green);border-radius:11px;color:var(--green);font-weight:700;text-decoration:none;overflow-wrap:anywhere}
+.announcement-date{margin:0;color:var(--muted);font-size:.75rem}
+.announcement-composer{display:flex;flex-direction:column;gap:9px;margin-bottom:14px}
+.announcement-composer h3{margin:0}
+.announcement-composer label{display:block;margin-top:4px;font-size:.85rem;font-weight:700}
+.announcement-composer input[type=text],.announcement-composer input[type=url],.announcement-composer textarea{width:100%;max-width:100%;box-sizing:border-box}
+.announcement-help,.announcement-upload-zone p{margin:0;font-size:.78rem;line-height:1.45}
+.announcement-upload-zone{display:flex;flex-direction:column;gap:7px;padding:12px;border:1px dashed var(--line);border-radius:12px;background:var(--surface,#fff)}
+.announcement-upload-zone input[type=file]{width:100%;max-width:100%;font-size:.82rem}
+.announcement-preview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.announcement-preview-item{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:.7rem;overflow-wrap:anywhere}
+.announcement-preview-item img,.announcement-preview-item video{width:100%;height:76px;object-fit:cover;border-radius:8px;background:#222}
+.announcement-file-icon{display:grid;place-items:center;height:76px;border-radius:8px;background:var(--green-soft);color:var(--green);font-size:2rem}
+.announcement-publish{margin-top:4px}
+.announcement-composer .announcement-link-fields{display:grid;gap:7px}
+@media(max-width:420px){.announcement-media-grid{gap:6px}.announcement-image{max-height:250px}.announcement-preview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
