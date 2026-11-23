@@ -84,7 +84,7 @@
     const rating = provider.rating == null ? "—" : Number(provider.rating).toFixed(1);
     const id = escapeText(provider.id);
     const portrait = window.FSArt ? window.FSArt.person(provider.category, true) : name.slice(0, 1).toUpperCase();
-    return '<article class="provider-card" role="button" tabindex="0" onclick="openPublicProfile(\\'' + id + '\\')"><div class="provider-top"><div class="avatar">' + portrait + '</div><div class="provider-info"><h3>' + name + '</h3><p class="provider-category">' + category + '</p><div class="provider-meta">' + city + '</div></div></div><div class="provider-bottom"><span class="rating">★ ' + rating + '</span><span>Voir le profil →</span></div></article>';
+    return `<article class="provider-card" role="button" tabindex="0" onclick="openPublicProfile('${id}')"><div class="provider-top"><div class="avatar">${portrait}</div><div class="provider-info"><h3>${name}</h3><p class="provider-category">${category}</p><div class="provider-meta">${city}</div></div></div><div class="provider-bottom"><span class="rating">★ ${rating}</span><span>Voir le profil →</span></div></article>`;
   }
 
   function renderCards(targetId, providers, emptyText) {
