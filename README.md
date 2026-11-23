@@ -17,6 +17,7 @@ Plateforme de mise en relation entre clients et prestataires de services au Burk
 | `app.js` | Logique métier, comptes, demandes, messagerie et administration |
 | `enhancements.js` | Accueil dynamique, carrousel, thème et installation PWA |
 | `sw.js` | Service Worker et cache versionné |
+| `announcements-migration.sql` | Extension Supabase pour les annonces multimédias |
 | `manifest.json` | Configuration d'installation PWA |
 
 ## Fonctionnalités
@@ -24,7 +25,7 @@ Plateforme de mise en relation entre clients et prestataires de services au Burk
 - Sections d'accueil : prestataires par ville, profils populaires et nouveaux profils
 - Demandes de service, SOS, messages et avis
 - Comptes clients et prestataires, parrainage
-- Administration, modération, annonces et abonnements
+- Administration, modération, annonces multimédias (texte, images, liens, audio, vidéo) et abonnements
 - Thème clair/sombre mémorisé
 - Carrousel promotionnel, illustrations SVG et animations discrètes
 - PWA installable avec stratégie de cache hors ligne
@@ -36,3 +37,8 @@ Les transactions client ↔ prestataire se font hors application. Les abonnement
 
 ## Déploiement
 Déployer les fichiers du dépôt sur Netlify. Le projet utilise la configuration Supabase déjà intégrée au code client avec une clé publishable. Ne jamais ajouter de clé secrète dans le dépôt.
+
+
+## Mise à jour Supabase — annonces multimédias
+
+Après le déploiement du code, exécuter une seule fois le contenu de `announcements-migration.sql` dans **Supabase → SQL Editor**. Cette migration ajoute les champs multimédias à `announcements`, crée le bucket public de lecture `announcements-media`, limite les envois et suppressions au propriétaire, et ajoute la fonction RPC sécurisée de publication. Sans cette migration, l'ancienne publication texte reste la seule opération disponible.
