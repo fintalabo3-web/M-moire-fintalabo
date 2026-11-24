@@ -55,7 +55,7 @@ Les migrations sont versionnées dans `supabase/migrations/` et appliquées au p
 - `20261124000700_unify_admin_checks_and_limit_staff_status.sql` : vérification administrateur unifiée et prévention de la divulgation du statut d'autres comptes.
 - `20261124000800_fail_closed_staff_suspension.sql` : contrôle de suspension des comptes avec refus explicite par défaut.
 
-Les migrations 004 et 005 ne suppriment aucune donnée. Les droits sensibles sont contrôlés côté PostgreSQL/RLS et non uniquement par l'interface.
+Les migrations 004 et 005 ne suppriment aucune donnée. Les droits sensibles sont contrôlés côté PostgreSQL/RLS et non uniquement par l'interface. L'écran de gestion des modérateurs n'affiche que les permissions effectivement prises en charge ; les anciennes clés `manage_sos` et `delete_user` ne sont pas présentées comme des capacités disponibles.
 
 ## Coût de fonctionnement
 
