@@ -88,7 +88,21 @@
                 </div>
                 <div class="categories" id="categoriesGrid"></div>
             </div>
+
+            <section class="section faso-tools-section"><div class="section-header"><div><span class="section-kicker">La communauté</span><h2>FasoService, bien plus qu'un annuaire</h2></div></div><div class="faso-tools-grid">
+              <button class="faso-tool-card" onclick="showPage('ideas')"><span class="faso-tool-icon"><i data-lucide="lightbulb"></i></span><strong>Boîte à idées</strong><small>Partagez vos propositions</small></button>
+              <button class="faso-tool-card" onclick="showPage('faq')"><span class="faso-tool-icon"><i data-lucide="circle-help"></i></span><strong>Centre d'aide</strong><small>Questions fréquentes</small></button>
+              <button class="faso-tool-card" onclick="showPage('contact')"><span class="faso-tool-icon"><i data-lucide="headset"></i></span><strong>Nous contacter</strong><small>Une équipe à votre écoute</small></button>
+              <button class="faso-tool-card" onclick="shareFasoService()"><span class="faso-tool-icon"><i data-lucide="share-2"></i></span><strong>Partager l'application</strong><small>Faites découvrir FasoService</small></button>
+            </div></section>
+            <footer class="faso-footer"><div class="faso-footer-brand"><span class="logo-icon">FS</span><strong>FasoService</strong></div><p>Les compétences locales, à portée de main.</p><div class="faso-footer-links"><button onclick="showPage('ideas')">Idées</button><button onclick="showPage('faq')">FAQ</button><button onclick="showPage('contact')">Contact</button><button onclick="shareFasoService()">Partager</button></div><small>© 2026 FasoService · Burkina Faso</small></footer>
         </section>
+
+
+        <section id="ideas" class="page"><div class="page-header"><button class="back-btn" onclick="showPage('home')" aria-label="Retour"><i data-lucide="arrow-left"></i></button><h1>Boîte à idées</h1></div><div class="community-intro"><span class="community-kicker">Construisons ensemble</span><h2>Votre idée peut faire avancer FasoService.</h2><p>Proposez une amélioration, partagez une expérience ou suggérez un nouveau service.</p></div><div id="ideaComposer" class="card idea-composer"></div><div class="section-header"><h2>Les idées de la communauté</h2><button class="link-btn" onclick="loadIdeasFeed()">Actualiser</button></div><div id="ideasFeed"><div class="skeleton-card"></div></div></section>
+        <section id="faq" class="page"><div class="page-header"><button class="back-btn" onclick="showPage('home')" aria-label="Retour"><i data-lucide="arrow-left"></i></button><h1>Centre d'aide</h1></div><div class="community-intro"><span class="community-kicker">Besoin d'un renseignement ?</span><h2>Les réponses aux questions fréquentes.</h2><p>Découvrez comment utiliser FasoService en toute simplicité.</p></div><div id="faqList" class="faq-list"></div><div class="card faq-contact-card"><h3>Vous n'avez pas trouvé votre réponse ?</h3><p class="muted">Notre équipe peut vous accompagner.</p><button class="btn-primary full" onclick="showPage('contact')">Contacter FasoService</button></div></section>
+        <section id="contact" class="page"><div class="page-header"><button class="back-btn" onclick="showPage('home')" aria-label="Retour"><i data-lucide="arrow-left"></i></button><h1>Contacter FasoService</h1></div><div class="community-intro"><span class="community-kicker">Nous sommes à votre écoute</span><h2>Comment pouvons-nous vous aider ?</h2><p>Envoyez-nous votre question ou signalez une difficulté.</p></div><form id="supportForm" class="card support-form" onsubmit="submitFasoContact(event)"><label for="supportName">Votre nom</label><input id="supportName" maxlength="100" required placeholder="Nom et prénom"><label for="supportPhone">Téléphone</label><input id="supportPhone" type="tel" maxlength="24" required placeholder="+226 ..."><label for="supportMessage">Votre message</label><textarea id="supportMessage" rows="5" maxlength="3000" required placeholder="Expliquez-nous votre besoin (10 caractères minimum)..."></textarea><p class="muted support-privacy">Vos coordonnées sont utilisées uniquement pour traiter votre demande.</p><button class="btn-primary full" id="supportSubmit" type="submit">Envoyer mon message</button><p id="supportFeedback" class="support-feedback" role="status"></p></form></section>
+        <section id="favorites" class="page"><div class="page-header"><button class="back-btn" onclick="showPage('home')" aria-label="Retour"><i data-lucide="arrow-left"></i></button><h1>Mes favoris</h1></div><div id="fasoFavoritesList"></div></section>
 
         <!-- DASHBOARD PRESTATAIRE -->
         <section id="dashboard" class="page">
@@ -433,10 +447,14 @@
                     <button class="btn-secondary full" onclick="loadAdminModerators()">Modérateurs</button>
                     <button class="btn-secondary full" onclick="loadAdminAnnouncements()">Annonces</button>
                     <button class="btn-secondary full" onclick="loadSubscriptionRequests()">Abonnements</button>
+                    <button class="btn-secondary full" onclick="loadSupportInbox()">Messages de contact</button>
+                    <button class="btn-secondary full" onclick="loadVisitorAnalytics()">Statistiques visiteurs</button>
                 </div>
             </div>
             <div id="adminList" style="margin-top:12px;"></div>
         </section>
+
+        <div id="visitorAnalytics" class="card visitor-analytics" hidden></div>
 
         <!-- MODÉRATEUR -->
         <section id="modDashboard" class="page">
@@ -460,6 +478,7 @@
 <div id="toastContainer" class="toast-container"></div>
 <script src="illustrations.js"></script>
 <script src="app.js"></script>
+<script src="community.js"></script>
 <script src="enhancements.js"></script>
 </body>
 </html>
