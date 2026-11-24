@@ -342,3 +342,74 @@ body{background:radial-gradient(ellipse at 8% 0%,#e7fff1 0,transparent 34%),radi
 body{background:linear-gradient(180deg,#f1faf4 0%,#f7faf8 260px,#f7faf8 100%)}
 #app,#mainContent,.page{background:transparent}
 body[data-theme="dark"]{background:#101a14}
+
+/* FasoService — double profondeur de l'arrière-plan */
+:root{
+  --backdrop-base:#f3f8f4;
+  --backdrop-glow-green:rgba(11,122,75,.10);
+  --backdrop-glow-gold:rgba(217,154,43,.12);
+  --backdrop-grid:rgba(15,83,55,.045);
+}
+body:not([data-theme="dark"]){
+  background-color:var(--backdrop-base);
+  background-image:
+    radial-gradient(ellipse at 8% 8%,var(--backdrop-glow-green) 0,transparent 34rem),
+    radial-gradient(ellipse at 94% 22%,var(--backdrop-glow-gold) 0,transparent 30rem),
+    radial-gradient(ellipse at 52% 92%,rgba(35,112,135,.055) 0,transparent 34rem),
+    linear-gradient(145deg,#f8fbf8 0%,#eff6f1 48%,#f7f8f3 100%);
+  background-attachment:fixed;
+}
+/* Couche décorative : halos doux et discrets, sans images externes. */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 12% 28%,rgba(11,122,75,.075),transparent 17rem),
+    radial-gradient(circle at 88% 68%,rgba(217,154,43,.075),transparent 19rem);
+  opacity:.9;
+}
+/* Deuxième couche : trame géométrique très légère pour donner de la profondeur. */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background-image:
+    linear-gradient(var(--backdrop-grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--backdrop-grid) 1px,transparent 1px);
+  background-size:36px 36px;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.42),transparent 78%);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.42),transparent 78%);
+  opacity:.42;
+}
+/* Le contenu reste au-dessus des deux couches décoratives. */
+#app{position:relative;z-index:1;background:transparent}
+#mainContent{background:transparent}
+body[data-theme="dark"]{
+  --backdrop-grid:rgba(191,225,202,.055);
+  background-color:#101a14;
+  background-image:
+    radial-gradient(ellipse at 8% 8%,rgba(11,122,75,.22) 0,transparent 34rem),
+    radial-gradient(ellipse at 94% 22%,rgba(217,154,43,.12) 0,transparent 30rem),
+    radial-gradient(ellipse at 52% 92%,rgba(35,112,135,.12) 0,transparent 34rem),
+    linear-gradient(145deg,#101a14 0%,#14231a 48%,#111b16 100%);
+  background-attachment:fixed;
+}
+body[data-theme="dark"]::before{
+  background:
+    radial-gradient(circle at 12% 28%,rgba(26,155,94,.12),transparent 17rem),
+    radial-gradient(circle at 88% 68%,rgba(217,154,43,.09),transparent 19rem);
+}
+@media(max-width:600px){
+  body:not([data-theme="dark"]){background-attachment:scroll}
+  body[data-theme="dark"]{background-attachment:scroll}
+  body::after{background-size:30px 30px;opacity:.28}
+}
+@media(prefers-reduced-motion:reduce){
+  body::before,body::after{scroll-behavior:auto}
+}
+
