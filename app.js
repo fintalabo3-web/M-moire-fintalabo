@@ -599,6 +599,7 @@ function renderProviderCard(p) {
                     <span style="color:var(--ink-soft);font-weight:400;margin-left:3px;">(${p.completed_requests || 0})</span>
                 </div>
                 ${p.available ? '<span class="badge-available">Disponible</span>' : ""}
+                <button class="favorite-toggle" type="button" aria-label="Ajouter ou retirer des favoris" onclick="event.stopPropagation();toggleFasoFavorite('${p.id}')"><i data-lucide="heart"></i></button>
             </div>
         </div>`;
 }
