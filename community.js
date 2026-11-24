@@ -216,6 +216,17 @@
       return '<div class="card" style="margin:10px 0"><strong>' + esc(x.providers.name) + '</strong><p class="muted">' + esc(x.providers.category) + ' · ' + esc(x.providers.city || "") + '</p><button class="btn-primary" onclick="openPublicProfile(\\'' + x.provider_id + '\\')">Voir le profil</button><button class="btn-secondary" onclick="removeFasoFavorite(\\'' + x.provider_id + '\\')">Retirer</button></div>';
     }).join("");
   };
+  window.toggleFasoFavorite = async function (providerId) {
+    const current = requireUser(); if (!current) return;
+    const found = await db.from("favorites").select("provider_id").eq("provider_id",providerId).eq("user_id",current.id).maybeSingle();
+    if (found.error) return notify("Impossible de vérifier ce favori.");
+    const result = found.data
+      ? await db.from("favorites").delete().eq("provider_id",providerId).eq("user_id",current.id)
+      : await db.from("favorites").insert({provider_id:providerId,user_id:current.id});
+    if (result.error) return notify("Impossible de modifier ce favori.");
+    notify(found.data ? "Prestataire retiré des favoris." : "Prestataire ajouté aux favoris.");
+  };
+
   window.removeFasoFavorite = async function (providerId) {
     const current = requireUser(); if (!current) return;
     const result = await db.from("favorites").delete().eq("provider_id",providerId).eq("user_id",current.id);
