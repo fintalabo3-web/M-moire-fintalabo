@@ -692,9 +692,7 @@ async function openPublicProfile(providerId) {
 
 async function sharePublicProfile() {
     if (!currentProvider) return toast("Profil indisponible");
-    const url = new URL(window.location.href);
-    url.search = "";
-    url.hash = "";
+    const url = new URL("https://fasoservice.netlify.app/");
     url.searchParams.set("profil", currentProvider.id);
     const shareData = {
         title: currentProvider.name + " — FasoService",
