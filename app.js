@@ -679,12 +679,52 @@ async function openPublicProfile(providerId) {
         <div class="card"><h3 style="margin-bottom:6px;">Services</h3>${servicesHtml}</div>
         <div class="card"><h3 style="margin-bottom:6px;">Réalisations</h3>${galleryHtml}</div>
         <div class="card"><h3 style="margin-bottom:6px;">Avis</h3>${reviewsHtml}</div>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        <div class="profile-share-actions">
+            <button class="btn-secondary full" type="button" onclick="sharePublicProfile()"><i data-lucide="share-2"></i> Partager ce profil</button>
+        </div>
+        <div class="profile-contact-actions">
             <button class="btn-primary full" onclick="startRequest('${p.id}')">Demander un service</button>
             <a class="btn-secondary full" style="text-align:center;text-decoration:none;" href="tel:${normalizePhone(p.phone)}">Appeler</a>
             <a class="btn-secondary full" style="text-align:center;text-decoration:none;" href="https://wa.me/226${phoneDigits}" target="_blank" rel="noopener">WhatsApp</a>
         </div>`;
     if (window.lucide) lucide.createIcons();
+}
+
+async function sharePublicProfile() {
+    if (!currentProvider) return toast("Profil indisponible");
+    const url = new URL(window.location.href);
+    url.search = "";
+    url.hash = "";
+    url.searchParams.set("profil", currentProvider.id);
+    const shareData = {
+        title: currentProvider.name + " — FasoService",
+        text: "Découvrez le profil de " + currentProvider.name + ", " + (currentProvider.category || "professionnel") + (currentProvider.city ? " à " + currentProvider.city : "") + ".",
+        url: url.href
+    };
+    try {
+        if (navigator.share) {
+            await navigator.share(shareData);
+        } else if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(url.href);
+            toast("Lien du profil copié");
+        } else {
+            const field = document.createElement("textarea");
+            field.value = url.href;
+            field.setAttribute("readonly", "");
+            field.style.position = "fixed";
+            field.style.opacity = "0";
+            document.body.appendChild(field);
+            field.select();
+            const copied = document.execCommand("copy");
+            field.remove();
+            toast(copied ? "Lien du profil copié" : "Copiez ce lien : " + url.href);
+        }
+    } catch (error) {
+        if (error && error.name !== "AbortError") {
+            console.error(error);
+            toast("Impossible de partager ce profil");
+        }
+    }
 }
 
 function startRequest(providerId) {
@@ -1836,7 +1876,12 @@ async function startApp() {
     renderBottomNav();
     await restoreSession();
     loadAnnouncement();
-    showPage(user ? (user.role === "provider" ? "dashboard" : "home") : "home");
+    const sharedProfileId = new URLSearchParams(window.location.search).get("profil");
+    if (sharedProfileId && /^[0-9a-f-]{20,}$/i.test(sharedProfileId)) {
+        await openPublicProfile(sharedProfileId);
+    } else {
+        showPage(user ? (user.role === "provider" ? "dashboard" : "home") : "home");
+    }
     if (user) {
         lastUnreadCount = await getUnreadMessagesCount();
         startMessagePolling();
