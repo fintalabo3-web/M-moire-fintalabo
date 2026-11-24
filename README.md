@@ -44,4 +44,16 @@ Les illustrations sont des SVG intégrés au code et ne prétendent pas être de
 Déployer les fichiers du dépôt sur Netlify. Le projet utilise la clé publishable Supabase côté navigateur. Ne jamais ajouter une clé secrète ou service_role dans le dépôt.
 
 ## Migrations Supabase
-Les migrations sont versionnées dans `supabase/migrations/`. La migration `20261124000100_platform_upgrade.sql` restaure la boîte à idées, ajoute la boîte de réception de support, les statistiques visiteurs et le stockage des annonces multimédias. Elle protège aussi les RPC de gestion des photos et services et conserve les données existantes.
+Les migrations sont versionnées dans `supabase/migrations/` et appliquées au projet Supabase associé.
+
+- `20261124000100_platform_upgrade.sql` : boîte à idées, support, statistiques, annonces multimédias et RPC protégées.
+- `20261124000200_query_indexes_and_visit_policy.sql` : index et politique de suivi des visites.
+- `20261124000300_remove_duplicate_idea_like_index.sql` : suppression d'un index strictement redondant.
+- `20261124000400_moderator_permissions_and_storage_hardening.sql` : alignement des permissions des modérateurs et restriction des écritures dans l'ancien bucket d'annonces aux administrateurs.
+- `20261124000500_authenticated_staff_policy_scope.sql` : limitation des politiques d'administration aux sessions authentifiées.
+
+Les migrations 004 et 005 ne suppriment aucune donnée. Les droits sensibles sont contrôlés côté PostgreSQL/RLS et non uniquement par l'interface.
+
+## Coût de fonctionnement
+
+Le projet est conçu pour démarrer avec un budget de **0 FCFA** : GitHub, Netlify et Supabase sont utilisés sur leurs offres gratuites. Les quotas gratuits et leurs limites doivent être surveillés (stockage, bande passante, base de données et disponibilité). Aucune clé secrète ou clé `service_role` ne doit être placée dans le frontend ou le dépôt.
