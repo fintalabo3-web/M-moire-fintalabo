@@ -38,19 +38,21 @@
     return current;
   }
 
-  window.trackFasoVisit = async function () {
+  window.trackFasoVisit = async function (pagePath) {
     try {
-      if (sessionStorage.getItem("fs_visit_recorded")) return;
+      const pageKey = String(pagePath || "home").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) || "home";
+      const sessionKey = "fs_visit_recorded:" + pageKey;
+      if (sessionStorage.getItem(sessionKey)) return;
       let visitor = localStorage.getItem("fs_visitor_key");
       if (!visitor) {
         visitor = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "fs-" + Date.now().toString(36) + Math.random().toString(36).slice(2);
         localStorage.setItem("fs_visitor_key", visitor);
       }
       const current = app.getUser();
-      const payload = {visitor_key:visitor,path:(location.pathname || "/").slice(0,80)};
+      const payload = {visitor_key:visitor,path:pageKey};
       if (current && current.id) payload.user_id = current.id;
       const result = await db.from("site_visits").insert(payload);
-      if (!result.error) sessionStorage.setItem("fs_visit_recorded", "1");
+      if (!result.error) sessionStorage.setItem(sessionKey, "1");
       else console.warn("FasoService visit tracking:", result.error.message);
     } catch (error) { console.warn("FasoService visit tracking unavailable:", error); }
   };
