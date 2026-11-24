@@ -25,9 +25,7 @@ const DEFAULT_MOD_PERMISSIONS = {
     view_users: true,
     view_providers: true,
     view_requests: true,
-    manage_sos: true,
     suspend_user: false,
-    delete_user: false,
     validate_provider: true
 };
 
