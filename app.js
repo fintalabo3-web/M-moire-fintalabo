@@ -1835,7 +1835,6 @@ async function startApp() {
     renderCategories();
     renderBottomNav();
     await restoreSession();
-    if (window.trackFasoVisit) window.trackFasoVisit("home");
     loadAnnouncement();
     showPage(user ? (user.role === "provider" ? "dashboard" : "home") : "home");
     if (user) {
