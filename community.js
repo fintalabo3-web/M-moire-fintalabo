@@ -116,7 +116,7 @@
     const current = app.getUser();
     composer.innerHTML = current
       ? '<h3>Proposer une idée</h3><label for="ideaTitle">Titre de votre idée</label><input id="ideaTitle" maxlength="140" placeholder="Ex. : Ajouter une catégorie de service"><label for="ideaBody">Expliquez votre proposition</label><textarea id="ideaBody" rows="4" maxlength="3000" placeholder="Décrivez votre idée (10 caractères minimum)…"></textarea><button class="btn-primary full" type="button" onclick="submitFasoIdea()">Publier mon idée</button><small class="muted">Votre nom de profil sera associé à la publication.</small>'
-      : '<h3>Vous avez une idée ?</h3><p class="muted">Connectez-vous pour proposer une amélioration à la communauté.</p><button class="btn-primary full" onclick="showPage(\\'login\\')">Se connecter</button>';
+      : '<h3>Vous avez une idée ?</h3><p class="muted">Connectez-vous pour proposer une amélioration à la communauté.</p><button class="btn-primary full" onclick="showPage(\'login\')">Se connecter</button>';
     feed.innerHTML = '<div class="empty-state"><p>Chargement des idées…</p></div>';
     const postResult = await db.from("idea_posts").select("id,title,body,author_id,author_name,created_at").order("created_at",{ascending:false}).limit(40);
     if (postResult.error) { feed.innerHTML = '<div class="empty-state"><p>Impossible de charger les idées pour le moment.</p></div>'; return; }
@@ -134,9 +134,9 @@
       const count = likes.filter(function (l) { return l.post_id === post.id; }).length;
       const commentHtml = postComments.slice(-4).map(function (c) { return '<div class="idea-comment"><strong>' + esc(c.author_name || "Membre") + '</strong><span>' + esc(c.body) + '</span></div>'; }).join("");
       const commentForm = current
-        ? '<form class="idea-comment-form" onsubmit="submitFasoIdeaComment(event,\\'' + post.id + '\\')"><input name="body" maxlength="1000" required placeholder="Ajouter un commentaire…"><button type="submit" aria-label="Envoyer">↗</button></form>'
-        : '<button class="link-btn" onclick="showPage(\\'login\\')">Connectez-vous pour commenter</button>';
-      return '<article class="idea-card"><div class="idea-card-head"><span class="idea-author">' + esc(post.author_name || "Membre FasoService") + '</span><time class="idea-date">' + fmt(post.created_at) + '</time></div><h3>' + esc(post.title) + '</h3><div class="idea-body">' + esc(post.body) + '</div><div class="idea-actions"><button class="idea-action ' + (mine.has(post.id) ? "active" : "") + '" onclick="toggleFasoIdeaLike(\\'' + post.id + '\\')">' + (mine.has(post.id) ? "♥" : "♡") + ' ' + count + ' J\\'aime</button><span class="muted">' + postComments.length + ' commentaire(s)</span></div><div class="idea-comments">' + (commentHtml || '<p class="muted">Pas encore de commentaire.</p>') + commentForm + '</div></article>';
+        ? '<form class="idea-comment-form" onsubmit="submitFasoIdeaComment(event,\'' + post.id + '\')"><input name="body" maxlength="1000" required placeholder="Ajouter un commentaire…"><button type="submit" aria-label="Envoyer">↗</button></form>'
+        : '<button class="link-btn" onclick="showPage(\'login\')">Connectez-vous pour commenter</button>';
+      return '<article class="idea-card"><div class="idea-card-head"><span class="idea-author">' + esc(post.author_name || "Membre FasoService") + '</span><time class="idea-date">' + fmt(post.created_at) + '</time></div><h3>' + esc(post.title) + '</h3><div class="idea-body">' + esc(post.body) + '</div><div class="idea-actions"><button class="idea-action ' + (mine.has(post.id) ? "active" : "") + '" onclick="toggleFasoIdeaLike(\'' + post.id + '\')">' + (mine.has(post.id) ? "♥" : "♡") + ' ' + count + ' J\'aime</button><span class="muted">' + postComments.length + ' commentaire(s)</span></div><div class="idea-comments">' + (commentHtml || '<p class="muted">Pas encore de commentaire.</p>') + commentForm + '</div></article>';
     }).join("");
   };
 
@@ -183,7 +183,7 @@
     const pages = (data.top_pages || []).map(function (p) {
       return '<div class="visitor-page-row"><span>' + esc(p.path) + '</span><strong>' + Number(p.visits).toLocaleString("fr-FR") + '</strong></div>';
     }).join("");
-    box.innerHTML = '<div class="section-header"><div><span class="section-kicker">Audience</span><h3>Statistiques des visiteurs</h3></div><button class="link-btn" onclick="loadVisitorAnalytics()">Actualiser</button></div><div class="visitor-grid"><div class="visitor-stat"><strong>' + Number(data.total).toLocaleString("fr-FR") + '</strong><span>Visites cumulées</span></div><div class="visitor-stat"><strong>' + Number(data.today).toLocaleString("fr-FR") + '</strong><span>Aujourd\\'hui</span></div><div class="visitor-stat"><strong>' + Number(data.last7).toLocaleString("fr-FR") + '</strong><span>7 derniers jours</span></div><div class="visitor-stat"><strong>' + Number(data.last30).toLocaleString("fr-FR") + '</strong><span>30 derniers jours</span></div></div><p class="muted" style="font-size:.75rem;margin:10px 0 0">Visiteurs distincts estimés : ' + Number(data.unique_visitors).toLocaleString("fr-FR") + '</p><div class="visitor-chart">' + bars + '</div><h4>Pages les plus consultées</h4><div class="visitor-pages">' + (pages || "<p class='muted'>Pas encore de données.</p>") + '</div>';
+    box.innerHTML = '<div class="section-header"><div><span class="section-kicker">Audience</span><h3>Statistiques des visiteurs</h3></div><button class="link-btn" onclick="loadVisitorAnalytics()">Actualiser</button></div><div class="visitor-grid"><div class="visitor-stat"><strong>' + Number(data.total).toLocaleString("fr-FR") + '</strong><span>Visites cumulées</span></div><div class="visitor-stat"><strong>' + Number(data.today).toLocaleString("fr-FR") + '</strong><span>Aujourd\'hui</span></div><div class="visitor-stat"><strong>' + Number(data.last7).toLocaleString("fr-FR") + '</strong><span>7 derniers jours</span></div><div class="visitor-stat"><strong>' + Number(data.last30).toLocaleString("fr-FR") + '</strong><span>30 derniers jours</span></div></div><p class="muted" style="font-size:.75rem;margin:10px 0 0">Visiteurs distincts estimés : ' + Number(data.unique_visitors).toLocaleString("fr-FR") + '</p><div class="visitor-chart">' + bars + '</div><h4>Pages les plus consultées</h4><div class="visitor-pages">' + (pages || "<p class='muted'>Pas encore de données.</p>") + '</div>';
   };
 
   window.loadSupportInbox = async function () {
@@ -195,7 +195,7 @@
     const rows = result.data || [];
     if (!rows.length) { box.innerHTML = "<div class='empty-state'><p>Aucun message reçu.</p></div>"; return; }
     box.innerHTML = rows.map(function (m) {
-      return '<article class="support-admin-item"><div class="idea-card-head"><strong>' + esc(m.name) + '</strong><time class="idea-date">' + fmt(m.created_at) + '</time></div><p><a href="tel:' + esc(m.phone) + '">' + esc(m.phone) + '</a></p><p>' + esc(m.message) + '</p><label>État de traitement <select onchange="updateSupportStatus(\\'' + m.id + '\\',this.value)"><option value="new" ' + (m.status==="new"?"selected":"") + '>Nouveau</option><option value="in_progress" ' + (m.status==="in_progress"?"selected":"") + '>En cours</option><option value="resolved" ' + (m.status==="resolved"?"selected":"") + '>Résolu</option></select></label></article>';
+      return '<article class="support-admin-item"><div class="idea-card-head"><strong>' + esc(m.name) + '</strong><time class="idea-date">' + fmt(m.created_at) + '</time></div><p><a href="tel:' + esc(m.phone) + '">' + esc(m.phone) + '</a></p><p>' + esc(m.message) + '</p><label>État de traitement <select onchange="updateSupportStatus(\'' + m.id + '\',this.value)"><option value="new" ' + (m.status==="new"?"selected":"") + '>Nouveau</option><option value="in_progress" ' + (m.status==="in_progress"?"selected":"") + '>En cours</option><option value="resolved" ' + (m.status==="resolved"?"selected":"") + '>Résolu</option></select></label></article>';
     }).join("");
   };
   window.updateSupportStatus = async function (id, status) {
@@ -213,7 +213,7 @@
     const rows = (result.data || []).filter(function (x) { return x.providers; });
     if (!rows.length) { box.innerHTML = "<div class='empty-state'><p>Vous n'avez pas encore de favoris.</p></div>"; return; }
     box.innerHTML = rows.map(function (x) {
-      return '<div class="card" style="margin:10px 0"><strong>' + esc(x.providers.name) + '</strong><p class="muted">' + esc(x.providers.category) + ' · ' + esc(x.providers.city || "") + '</p><button class="btn-primary" onclick="openPublicProfile(\\'' + x.provider_id + '\\')">Voir le profil</button><button class="btn-secondary" onclick="removeFasoFavorite(\\'' + x.provider_id + '\\')">Retirer</button></div>';
+      return '<div class="card" style="margin:10px 0"><strong>' + esc(x.providers.name) + '</strong><p class="muted">' + esc(x.providers.category) + ' · ' + esc(x.providers.city || "") + '</p><button class="btn-primary" onclick="openPublicProfile(\'' + x.provider_id + '\')">Voir le profil</button><button class="btn-secondary" onclick="removeFasoFavorite(\'' + x.provider_id + '\')">Retirer</button></div>';
     }).join("");
   };
   window.toggleFasoFavorite = async function (providerId) {
