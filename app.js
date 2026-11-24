@@ -148,6 +148,10 @@ function showPage(pageId) {
     if (pageId === "adminDashboard") displayAdminDashboard();
     if (pageId === "messages") loadMessages();
     if (pageId === "home") loadAnnouncement();
+    if (pageId === "ideas" && window.loadIdeasFeed) window.loadIdeasFeed();
+    if (pageId === "faq" && window.loadFasoFAQ) window.loadFasoFAQ();
+    if (pageId === "contact" && window.initFasoContact) window.initFasoContact();
+    if (pageId === "favorites" && window.loadFasoFavorites) window.loadFasoFavorites();
     if (pageId === "modDashboard") {
         const list = getAdminList();
         if (list) list.innerHTML = "";
@@ -1641,6 +1645,7 @@ async function displayAdminDashboard() {
         <div class="stat-card"><div class="number">${requests.filter(r => r.status === "envoyée").length}</div><div class="label">En attente</div></div>
         <div class="stat-card"><div class="number">${requests.filter(r => r.is_sos).length}</div><div class="label">SOS</div></div>
         <div class="stat-card"><div class="number">${users.filter(u => u.is_moderator).length}</div><div class="label">Modérateurs</div></div>`;
+    if (window.loadVisitorAnalytics) window.loadVisitorAnalytics();
 }
 
 async function loadAdminUsers() {
@@ -1828,6 +1833,7 @@ async function startApp() {
     renderCategories();
     renderBottomNav();
     await restoreSession();
+    if (window.trackFasoVisit) window.trackFasoVisit();
     loadAnnouncement();
     showPage(user ? (user.role === "provider" ? "dashboard" : "home") : "home");
     if (user) {
