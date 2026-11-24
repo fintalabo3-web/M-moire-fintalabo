@@ -133,6 +133,7 @@ async function generateUniqueReferralCode(name) {
 /* ========== NAVIGATION ========== */
 
 function showPage(pageId) {
+    if (window.trackFasoVisit) window.trackFasoVisit(pageId);
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     const page = document.getElementById(pageId);
     if (page) page.classList.add("active");
@@ -1834,7 +1835,7 @@ async function startApp() {
     renderCategories();
     renderBottomNav();
     await restoreSession();
-    if (window.trackFasoVisit) window.trackFasoVisit();
+    if (window.trackFasoVisit) window.trackFasoVisit("home");
     loadAnnouncement();
     showPage(user ? (user.role === "provider" ? "dashboard" : "home") : "home");
     if (user) {
