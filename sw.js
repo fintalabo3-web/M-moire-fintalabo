@@ -1,5 +1,5 @@
 /* FasoService — Service Worker PWA, cache versionné */
-const CACHE = "fasoservice-v6";
+const CACHE = "fasoservice-v7";
 const CORE_ASSETS = ["/", "/index.html", "/style.css", "/app.js", "/community.js", "/enhancements.js", "/illustrations.js", "/manifest.json", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/og-image.png"];
 
 self.addEventListener("install", event => {
