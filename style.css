@@ -275,3 +275,31 @@ body[data-theme="dark"] .header,body[data-theme="dark"] .bottom-nav{background:#
 @media(min-width:700px){.faso-tools-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.visitor-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.community-intro h2{font-size:1.8rem}}
 
 .favorite-toggle{display:inline-grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--green);cursor:pointer}.favorite-toggle svg{width:17px;height:17px}.favorite-toggle:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+/* Direction artistique lumineuse — métiers, portraits et surfaces */
+:root{--green:#087f52;--green-deep:#045b3a;--green-soft:#e3f8ec;--ochre:#f2a900;--ochre-soft:#fff3cc;--shadow:0 14px 34px rgba(8,65,43,.11)}
+body{background:radial-gradient(ellipse at 8% 0%,#e7fff1 0,transparent 34%),radial-gradient(ellipse at 96% 18%,#fff2d6 0,transparent 29%),#f6faf7}
+.hero{background:linear-gradient(118deg,#087f52 0%,#07966a 48%,#075b3a 100%);box-shadow:0 18px 42px rgba(4,91,58,.24)}
+.hero:before{border-color:#ffffff42;box-shadow:0 0 0 22px #ffffff12,0 0 0 48px #ffffff09}
+.section-kicker{color:#0a9860}
+.category{position:relative;isolation:isolate;min-height:112px;gap:7px;padding:10px 6px 12px;border:1px solid #ffffffd9;background:linear-gradient(145deg,#e5fff0,#d5f5e4 65%,#fff);color:#075b3a;box-shadow:0 5px 14px rgba(8,88,57,.08);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.category:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,#ffffffa8,transparent 52%);z-index:-1;pointer-events:none}
+.category:nth-child(5n+2){background:linear-gradient(145deg,#fff4d7,#ffe7ad 68%,#fff);color:#895000}
+.category:nth-child(5n+3){background:linear-gradient(145deg,#e9f1ff,#d8e7ff 68%,#fff);color:#254f91}
+.category:nth-child(5n+4){background:linear-gradient(145deg,#fceaff,#f5d9f7 68%,#fff);color:#873e83}
+.category:nth-child(5n){background:linear-gradient(145deg,#e0fbfa,#c9f0ed 68%,#fff);color:#126b69}
+.category:hover{transform:translateY(-4px);box-shadow:0 12px 25px rgba(8,88,57,.16);border-color:#ffffff}
+.category:active{transform:scale(.97)}
+.category-art{display:grid;place-items:center;width:100%;max-width:112px;height:65px;filter:drop-shadow(0 5px 7px rgba(30,55,40,.08))}
+.category-art svg{display:block;width:100%;height:65px;max-width:112px;overflow:visible}
+.category>span:last-child{font-size:11px;font-weight:800;line-height:1.2;min-height:25px;display:flex;align-items:center;justify-content:center}
+.provider-card{border-color:#e2eee6;box-shadow:0 7px 20px rgba(17,55,35,.07);background:linear-gradient(155deg,#fff 0%,#fbfffc 100%)}
+.provider-card:hover{box-shadow:0 16px 32px rgba(8,88,57,.13)}
+.avatar{background:linear-gradient(135deg,#d7f6e4,#fff0c8);box-shadow:0 3px 10px rgba(8,88,57,.12)}
+.avatar>svg{filter:saturate(1.12)}
+.profile-avatar{background:linear-gradient(135deg,#d8f7e6,#fff0ce 58%,#dceaff);box-shadow:inset 0 0 0 1px #ffffffa8}
+.profile-avatar>svg{filter:saturate(1.12) contrast(1.02)}
+.faso-tool-card{box-shadow:0 8px 20px rgba(8,88,57,.07);border-color:#e2eee6}
+.faso-tool-card:hover{transform:translateY(-3px);box-shadow:0 14px 26px rgba(8,88,57,.13)}
+@media(max-width:380px){.categories{gap:7px}.category{min-height:105px;padding-inline:3px}.category-art{height:57px}.category-art svg{height:57px}}
+@media(min-width:700px){.categories{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.category{min-height:126px}.category-art{height:75px}.category-art svg{height:75px}}
