@@ -52,6 +52,7 @@ Les migrations sont versionnées dans `supabase/migrations/` et appliquées au p
 - `20261124000400_moderator_permissions_and_storage_hardening.sql` : alignement des permissions des modérateurs et restriction des écritures dans l'ancien bucket d'annonces aux administrateurs.
 - `20261124000500_authenticated_staff_policy_scope.sql` : limitation des politiques d'administration aux sessions authentifiées.
 - `20261124000600_fix_moderator_rls_recursion.sql` : fonction sécurisée de lecture des permissions du modérateur, sans récursion RLS.
+- `20261124000700_unify_admin_checks_and_limit_staff_status.sql` : vérification administrateur unifiée et prévention de la divulgation du statut d'autres comptes.
 
 Les migrations 004 et 005 ne suppriment aucune donnée. Les droits sensibles sont contrôlés côté PostgreSQL/RLS et non uniquement par l'interface.
 
