@@ -25,9 +25,7 @@ const DEFAULT_MOD_PERMISSIONS = {
     view_users: true,
     view_providers: true,
     view_requests: true,
-    manage_sos: true,
     suspend_user: false,
-    delete_user: false,
     validate_provider: true
 };
 
@@ -133,6 +131,7 @@ async function generateUniqueReferralCode(name) {
 /* ========== NAVIGATION ========== */
 
 function showPage(pageId) {
+    if (window.trackFasoVisit) window.trackFasoVisit(pageId);
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     const page = document.getElementById(pageId);
     if (page) page.classList.add("active");
@@ -148,6 +147,10 @@ function showPage(pageId) {
     if (pageId === "adminDashboard") displayAdminDashboard();
     if (pageId === "messages") loadMessages();
     if (pageId === "home") loadAnnouncement();
+    if (pageId === "ideas" && window.loadIdeasFeed) window.loadIdeasFeed();
+    if (pageId === "faq" && window.loadFasoFAQ) window.loadFasoFAQ();
+    if (pageId === "contact" && window.initFasoContact) window.initFasoContact();
+    if (pageId === "favorites" && window.loadFasoFavorites) window.loadFasoFavorites();
     if (pageId === "modDashboard") {
         const list = getAdminList();
         if (list) list.innerHTML = "";
@@ -595,6 +598,7 @@ function renderProviderCard(p) {
                     <span style="color:var(--ink-soft);font-weight:400;margin-left:3px;">(${p.completed_requests || 0})</span>
                 </div>
                 ${p.available ? '<span class="badge-available">Disponible</span>' : ""}
+                <button class="favorite-toggle" type="button" aria-label="Ajouter ou retirer des favoris" onclick="event.stopPropagation();toggleFasoFavorite('${p.id}')"><i data-lucide="heart"></i></button>
             </div>
         </div>`;
 }
@@ -673,12 +677,50 @@ async function openPublicProfile(providerId) {
         <div class="card"><h3 style="margin-bottom:6px;">Services</h3>${servicesHtml}</div>
         <div class="card"><h3 style="margin-bottom:6px;">Réalisations</h3>${galleryHtml}</div>
         <div class="card"><h3 style="margin-bottom:6px;">Avis</h3>${reviewsHtml}</div>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        <div class="profile-share-actions">
+            <button class="btn-secondary full" type="button" onclick="sharePublicProfile()"><i data-lucide="share-2"></i> Partager ce profil</button>
+        </div>
+        <div class="profile-contact-actions">
             <button class="btn-primary full" onclick="startRequest('${p.id}')">Demander un service</button>
             <a class="btn-secondary full" style="text-align:center;text-decoration:none;" href="tel:${normalizePhone(p.phone)}">Appeler</a>
             <a class="btn-secondary full" style="text-align:center;text-decoration:none;" href="https://wa.me/226${phoneDigits}" target="_blank" rel="noopener">WhatsApp</a>
         </div>`;
     if (window.lucide) lucide.createIcons();
+}
+
+async function sharePublicProfile() {
+    if (!currentProvider) return toast("Profil indisponible");
+    const url = new URL("https://fasoservice.netlify.app/");
+    url.searchParams.set("profil", currentProvider.id);
+    const shareData = {
+        title: currentProvider.name + " — FasoService",
+        text: "Découvrez le profil de " + currentProvider.name + ", " + (currentProvider.category || "professionnel") + (currentProvider.city ? " à " + currentProvider.city : "") + ".",
+        url: url.href
+    };
+    try {
+        if (navigator.share) {
+            await navigator.share(shareData);
+        } else if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(url.href);
+            toast("Lien du profil copié");
+        } else {
+            const field = document.createElement("textarea");
+            field.value = url.href;
+            field.setAttribute("readonly", "");
+            field.style.position = "fixed";
+            field.style.opacity = "0";
+            document.body.appendChild(field);
+            field.select();
+            const copied = document.execCommand("copy");
+            field.remove();
+            toast(copied ? "Lien du profil copié" : "Copiez ce lien : " + url.href);
+        }
+    } catch (error) {
+        if (error && error.name !== "AbortError") {
+            console.error(error);
+            toast("Impossible de partager ce profil");
+        }
+    }
 }
 
 function startRequest(providerId) {
@@ -1641,6 +1683,7 @@ async function displayAdminDashboard() {
         <div class="stat-card"><div class="number">${requests.filter(r => r.status === "envoyée").length}</div><div class="label">En attente</div></div>
         <div class="stat-card"><div class="number">${requests.filter(r => r.is_sos).length}</div><div class="label">SOS</div></div>
         <div class="stat-card"><div class="number">${users.filter(u => u.is_moderator).length}</div><div class="label">Modérateurs</div></div>`;
+    if (window.loadVisitorAnalytics) window.loadVisitorAnalytics();
 }
 
 async function loadAdminUsers() {
@@ -1829,7 +1872,12 @@ async function startApp() {
     renderBottomNav();
     await restoreSession();
     loadAnnouncement();
-    showPage(user ? (user.role === "provider" ? "dashboard" : "home") : "home");
+    const sharedProfileId = new URLSearchParams(window.location.search).get("profil");
+    if (sharedProfileId && /^[0-9a-f-]{20,}$/i.test(sharedProfileId)) {
+        await openPublicProfile(sharedProfileId);
+    } else {
+        showPage(user ? (user.role === "provider" ? "dashboard" : "home") : "home");
+    }
     if (user) {
         lastUnreadCount = await getUnreadMessagesCount();
         startMessagePolling();

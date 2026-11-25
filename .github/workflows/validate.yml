@@ -1,0 +1,32 @@
+name: Validate FasoService
+
+on:
+  push:
+    branches: ["main", "upgrade/fasoservice-community"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check JavaScript syntax
+        run: |
+          node --check app.js
+          node --check community.js
+          node --check enhancements.js
+          node --check illustrations.js
+          node --check sw.js
+      - name: Verify required application files
+        run: |
+          test -s index.html
+          test -s style.css
+          test -s community.js
+          test -s manifest.json
+          test -s sw.js
