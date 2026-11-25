@@ -104,7 +104,7 @@
     }
     button.disabled = true; button.textContent = "Envoi en cours…";
     try {
-      const result = await db.rpc("submit_support_message", {new_name:name,new_phone:phone,new_message:message});
+      const website = document.getElementById("supportWebsite")?.value || "";\n      const result = await db.rpc("submit_support_message", {new_name:name,new_phone:phone,new_message:message,new_website:website});
       if (result.error) throw result.error;
       form.reset(); if (feedback) feedback.textContent = "Votre message a bien été transmis. Merci de nous avoir contactés.";
     } catch (error) {
