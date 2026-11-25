@@ -413,3 +413,7 @@ body[data-theme="dark"]::before{
   body::before,body::after{scroll-behavior:auto}
 }
 
+
+
+/* FasoService — champ piège anti-robot du formulaire de contact */
+.support-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important}
